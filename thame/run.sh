@@ -4,12 +4,12 @@ set -Eeuo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # L4xxyHost Nightfall red horror terminal palette
-RED="\\033[38;5;196m"
+RED=$'\033[38;5;196m'
 GREEN="\033[38;5;120m"
 YELLOW="\033[38;5;221m"
-CYAN="\\033[38;5;203m"
-MAGENTA="\\033[38;5;196m"
-PURPLE="\\033[38;5;124m"
+CYAN=$'\033[38;5;203m'
+MAGENTA=$'\033[38;5;196m'
+PURPLE=$'\033[38;5;124m'
 WHITE="\033[1;37m"
 MUTED="\033[38;5;245m"
 BOLD="\033[1m"
