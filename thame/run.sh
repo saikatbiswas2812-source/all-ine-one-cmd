@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # L4xxyHost premium purple / rose terminal palette
 RED="\033[38;5;203m"
@@ -188,8 +191,8 @@ while true; do
             clear
             draw_box
             echo ""
-            echo -e "${CYAN}Launching Theme...${RESET}"
-            bash <(curl -s https://raw.githubusercontent.com/nobita329/Nobita-Cloud/refs/heads/main/thame/thames.sh)
+            echo -e "${CYAN}Launching L4xxyHost Theme Gallery...${RESET}"
+            bash "$ROOT/thame/thames.sh"
             pause
             ;;
 
@@ -197,8 +200,8 @@ while true; do
             clear
             draw_box
             echo ""
-            echo -e "${CYAN}Launching Extensions...${RESET}"
-            bash <(curl -s https://raw.githubusercontent.com/nobita329/Nobita-Cloud/refs/heads/main/thame/Extension2.sh)
+            echo -e "${CYAN}Launching L4xxyHost Extensions...${RESET}"
+            bash "$ROOT/thame/Extension2.sh"
             pause
             ;;
 
