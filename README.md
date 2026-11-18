@@ -58,13 +58,29 @@ bash tests/smoke.sh
 
 ## One-line installer domain
 
-The intended command is:
+The target command is:
 
 ```bash
-bash <(curl -fsSL https://petro.l4xxyhost.in)
+bash <(curl -fsSL https://l4xxyhost.in)
 ```
 
-This command will work only after the domain DNS, HTTPS hosting and root installer endpoint have been configured and tested. It is **not yet a live installer endpoint**.
+The Cloudflare Worker endpoint is provided in `cloudflare/worker.js`. It serves the current public `install.sh` from this repository as plain text at the domain root (and at `/install.sh`).
+
+### Deploy on Cloudflare
+
+1. Add `l4xxyhost.in` to the Cloudflare account and make sure the zone is **Active**.
+2. From the `cloudflare` directory, deploy the Worker using Wrangler:
+   ```bash
+   npx wrangler deploy
+   ```
+3. Confirm the route `l4xxyhost.in/*` is attached to the Worker. The included `wrangler.toml` declares this route.
+4. Verify the endpoint before sharing it:
+   ```bash
+   curl -fsSL https://l4xxyhost.in
+   ```
+   The response must begin with the L4xxyHost installer shebang (`#!/usr/bin/env bash`).
+
+**Not live yet:** committing these files does not grant access to your Cloudflare account or change DNS. The short command will work only after the Worker is deployed and the domain zone is active in Cloudflare.
 
 ## License and provenance
 
