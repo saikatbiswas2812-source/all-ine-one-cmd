@@ -68,6 +68,15 @@ while true; do
               echo -e "\n  ${Y}Blueprint CLI not found. Install Blueprint Framework first.${N}"
             else
               package="$PANEL_DIR/$name.blueprint"
+              bundled_package="$ROOT/thame/UI/$name.blueprint"
+              if [[ ! -f "$package" && -f "$bundled_package" ]]; then
+                if unzip -tq "$bundled_package" >/dev/null 2>&1; then
+                  cp -- "$bundled_package" "$package"
+                  echo -e "  ${G}Using bundled theme package: $bundled_package${N}"
+                else
+                  echo -e "  ${R}Bundled theme package failed ZIP integrity check: $bundled_package${N}"
+                fi
+              fi
               if [[ ! -f "$package" ]]; then
                 echo -e "\n  ${Y}Package missing: $package${N}"
                 echo -e "  ${D}Checking common upload folders (/root, /home, /tmp)...${N}"
