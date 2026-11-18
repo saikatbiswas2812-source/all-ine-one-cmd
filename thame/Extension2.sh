@@ -1,4 +1,5 @@
-# !/bin/bash
+#!/usr/bin/env bash
+set -u
 
 # ==========================================
 # 🔐 BASIC PROTECTION
@@ -72,53 +73,51 @@ run_blueprint() {
     fi
 }
 
-get_title() { echo 'ICAgICAg44CCIOKAjCDigJMgTm9iaXRhLmRldiBDT05UUk9MIEhVQiDigJMg44CCICAgICAg' | base64 -d; }
+get_title() { printf '✦ L4XXYHOST  /  EXTENSION MARKETPLACE'; }
 
 # ==========================================
 # 📋 MENU
 # ==========================================
 show_menu() {
     clear
-    echo -e "${BC} ╔══════════════════════════════════════════════════════════╗${N}"
-    printf " ${BC}║${BW}%-58s${BC}║${N}\n" "$(get_title)"
-    echo -e "${BC} ╚══════════════════════════════════════════════════════════╝${N}"
-    
-    local count=0
+    echo -e "${C}╭──────────────────────────────────────────────────────────────────────────────╮${N}"
+    echo -e "${C}│                                                                              │${N}"
+    printf " ${C}│${N}   ${BM}%-74s${C}│${N}\n" "$(get_title)"
+    printf " ${C}│${N}   ${BY}%-74s${C}│${N}\n" "MADE BY L4XXY  •  PREMIUM BLUEPRINT ADD-ONS"
+    echo -e "${C}│                                                                              │${N}"
+    echo -e "${C}╰──────────────────────────────────────────────────────────────────────────────╯${N}"
+    echo -e "  ${D}HOST${N} ${W}$(hostname)${N}   ${D}USER${N} ${W}$(whoami)${N}   ${D}TIME${N} ${W}$(date +'%H:%M')${N}"
+    echo -e "\n  ${M}╭────────────────────────────── ✦ ──────────────────────────────────────────╮${N}"
+    echo -e "  ${M}│${N}  ${BM}SELECT EXTENSIONS TO MANAGE${N}                                             ${M}│${N}"
+    echo -e "  ${M}╰──────────────────────────────────────────────────────────────────────────╯${N}\n"
+
+    local count=0 i num clean_name status select_mark display_name
     for i in "${!names[@]}"; do
         num=$((i+1))
         clean_name="${names[$i]%.blueprint}"
-        
-        # Status Icon
         is_installed "$clean_name" && status="${BG}●${N}" || status="${R}○${N}"
-        # Selection Icon
-        is_selected "$i" && select_mark="${BY}[+]${N}" || select_mark="   "
-
-        # Truncate long names to 22 chars to protect the 2-column layout
-        display_name="${clean_name:0:22}"
-
-        printf " %b ${BG}%2d${N} %-22s %b  " "$select_mark" "$num" "$display_name" "$status"
-        ((count++))
+        is_selected "$i" && select_mark="${BY}[✓]${N}" || select_mark="   "
+        display_name="${clean_name:0:23}"
+        printf "  %b ${B}%2d${N} %-23s %b  " "$select_mark" "$num" "$display_name" "$status"
+        ((count+=1))
         [[ $((count % 2)) -eq 0 ]] && echo ""
     done
-
-    # Add a newline if list ends on an odd number
     [[ $((count % 2)) -ne 0 ]] && echo ""
 
-    echo -e "${C} ──────────────────────────────────────────────────────────${N}"
-    echo -e " ${BW}SELECTED:${N} ${BY}${#selected_indices[@]}${N} items"
-    echo -e " ${BG}[i]${N} Install  ${BR}[r]${N} Remove  ${BM}[a]${N} Select All  ${BC}[c]${N} Clear  ${R}[0]${N} Exit"
-    echo -e "${C} ──────────────────────────────────────────────────────────${N}"
+    echo -e "\n  ${C}╭──────────────────────────────────────────────────────────────────────────╮${N}"
+    echo -e "  ${C}│${N}  ${W}SELECTED:${N} ${BY}${#selected_indices[@]}${N} items"
+    echo -e "  ${C}│${N}  ${BG}[i]${N} Install   ${BR}[r]${N} Remove   ${BM}[a]${N} Select All   ${BC}[c]${N} Clear   ${R}[0]${N} Back"
+    echo -e "  ${C}╰──────────────────────────────────────────────────────────────────────────╯${N}"
 }
 
-# ==========================================
 # 🔁 MAIN LOOP
 # ==========================================
 while true; do
     show_menu
-    read -p " 👉 Select ID(s) or Action: " choice
+    read -r -p "$(echo -e "  ${BC}L4XXYHOST ${BM}›${N} Select IDs or action: ")" choice
 
     case $choice in
-        0) echo -e "\n${M} Bye!${N}"; exit 0 ;;
+        0) echo -e "\n${M} Returning to Theme Studio...${N}"; exit 0 ;;
         c|C) selected_indices=() ;;
         a|A) 
             selected_indices=()
