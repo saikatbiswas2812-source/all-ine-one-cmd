@@ -91,13 +91,13 @@ while true; do
                 echo ""
 
                 if [ "$installed" = false ]; then
-                    echo -e "   ${GREEN}[1] Install${RESET}"
+                    echo -e "   ${YELLOW}[1] Install  — LOCKED pending package verification${RESET}"
                     echo -e "   ${RED}[0] Back${RESET}"
                 else
-                    echo -e "   ${GREEN}[1] Reinstall${RESET}"
-                    echo -e "   ${GREEN}[2] Update${RESET}"
-                    echo -e "   ${GREEN}[3] Info${RESET}"
-                    echo -e "   ${GREEN}[4] Version${RESET}"
+                    echo -e "   ${YELLOW}[1] Reinstall  — LOCKED pending package verification${RESET}"
+                    echo -e "   ${YELLOW}[2] Update  — LOCKED pending package verification${RESET}"
+                    echo -e "   ${CYAN}[3] Info${RESET}"
+                    echo -e "   ${CYAN}[4] Version${RESET}"
                     echo -e "   ${RED}[5] Uninstall${RESET}"
                     echo -e "   ${RED}[0] Back${RESET}"
                 fi
