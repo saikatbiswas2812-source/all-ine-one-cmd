@@ -29,6 +29,34 @@ pause() {
     read -p "   Press Enter to continue..." dummy
 }
 
+install_blueprint() {
+    local panel="/var/www/pterodactyl" major
+    [[ -f "$panel/artisan" ]] || { status_msg ERROR "Pterodactyl Panel not found at $panel."; return 1; }
+    [[ "$EUID" -eq 0 ]] || { status_msg ERROR "Run L4XXYHOST as root to install Blueprint."; return 1; }
+    for cmd in curl wget unzip npm node; do
+        command -v "$cmd" >/dev/null 2>&1 || { status_msg ERROR "Missing required command: $cmd"; return 1; }
+    done
+    major="$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || true)"
+    [[ "$major" == "22" ]] || { status_msg ERROR "Official Blueprint guide specifies Node.js 22.x; detected $(node -v 2>/dev/null || echo unknown). Switch to Node 22.x first."; return 1; }
+
+    if [[ ! -f "$panel/blueprint.sh" ]]; then
+        status_msg INFO "Downloading official Blueprint release..."
+        wget -q --show-progress "https://github.com/BlueprintFramework/framework/releases/latest/download/release.zip" -O "$panel/release.zip" || { status_msg ERROR "Blueprint download failed."; return 1; }
+        unzip -oq "$panel/release.zip" -d "$panel" || { status_msg ERROR "Blueprint extraction failed."; return 1; }
+    fi
+    if ! command -v yarn >/dev/null 2>&1; then npm install --global yarn || return 1; fi
+    if [[ ! -f "$panel/.blueprintrc" ]]; then
+        printf '%s\n' 'WEBUSER="www-data";' 'OWNERSHIP="www-data:www-data";' 'USERSHELL="/bin/bash";' > "$panel/.blueprintrc"
+    fi
+    chown -R www-data:www-data "$panel"
+    chmod +x "$panel/blueprint.sh"
+    status_msg INFO "Installing Blueprint dependencies..."
+    (cd "$panel" && yarn install) || return 1
+    status_msg INFO "Running official Blueprint installer..."
+    (cd "$panel" && bash ./blueprint.sh) || return 1
+    command -v blueprint >/dev/null 2>&1 && status_msg OK "Blueprint CLI is installed." || { status_msg ERROR "Blueprint CLI was not detected after installation."; return 1; }
+}
+
 status_msg() {
     local type="$1"
     local msg="$2"
@@ -107,15 +135,7 @@ while true; do
 
                 case $bp in
                     1)
-                        if [[ ! -f /var/www/pterodactyl/artisan ]]; then
-                            echo -e "${RED}Pterodactyl Panel is not installed at /var/www/pterodactyl.${RESET}"
-                            echo -e "${MUTED}Install the Panel first; Blueprint cannot run without it.${RESET}"
-                        elif [[ -x /var/www/pterodactyl/blueprint.sh ]]; then
-                            (cd /var/www/pterodactyl && bash ./blueprint.sh)
-                        else
-                            echo -e "${YELLOW}Blueprint release files are not present in the Panel directory.${RESET}"
-                            echo -e "${MUTED}Install the official Blueprint release, then return here.${RESET}"
-                        fi
+                        install_blueprint
                         pause
                         ;;
                     2)
