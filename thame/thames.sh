@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-[[ $EUID -eq 0 ]] || { echo "Run this module as root."; exit 1; }
-
 # L4xxyHost premium terminal palette
 R=$'\033[38;5;203m'; G=$'\033[38;5;120m'; Y=$'\033[38;5;221m'
 C=$'\033[38;5;81m'; M=$'\033[38;5;213m'; P=$'\033[38;5;141m'
