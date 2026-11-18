@@ -88,7 +88,10 @@ draw_header() {
 }
 
 show_item() {
-  local index=$1 number=$((index + 1)) name="${names[$index]%.blueprint}" mark status
+  local index number name mark status
+  index=$1
+  number=$((index + 1))
+  name="${names[$index]%.blueprint}"
   if is_selected "$index"; then mark=" ${BY}◆${N}"; else mark=" ${D}◇${N}"; fi
   if is_installed "$name"; then status=" ${BG}●${N}"; else status=" ${R}○${N}"; fi
   printf '  %b %b%02d%b %-*.*s %b\n' "$mark" "$BC" "$number" "$N" "$name_width" "$name_width" "$name" "$status"
