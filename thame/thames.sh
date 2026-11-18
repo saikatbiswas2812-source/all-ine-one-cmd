@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 PANEL_DIR="/var/www/pterodactyl"
 R=$'\033[38;5;196m'; G=$'\033[38;5;120m'; Y=$'\033[38;5;220m'
 C=$'\033[38;5;203m'; M=$'\033[38;5;196m'; P=$'\033[38;5;124m'
