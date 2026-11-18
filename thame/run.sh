@@ -3,13 +3,13 @@ set -Eeuo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# L4xxyHost premium purple / rose terminal palette
-RED="\033[38;5;203m"
+# L4xxyHost Nightfall red horror terminal palette
+RED="\\033[38;5;196m"
 GREEN="\033[38;5;120m"
 YELLOW="\033[38;5;221m"
-CYAN="\033[38;5;81m"
-MAGENTA="\033[38;5;213m"
-PURPLE="\033[38;5;141m"
+CYAN="\\033[38;5;203m"
+MAGENTA="\\033[38;5;196m"
+PURPLE="\\033[38;5;124m"
 WHITE="\033[1;37m"
 MUTED="\033[38;5;245m"
 BOLD="\033[1m"
