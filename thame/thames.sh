@@ -76,8 +76,8 @@ while true; do
   printf '  %sSELECTED THEME%s  %s%s%s\n' "$D" "$N" "$W$BB" "$clean_name" "$N"
   printf '  %sCURRENT STATUS%s  %b\n\n' "$D" "$N" "$cur_status"
   printf '  %s╭──────────────────────────────────────────────────────────────────────────╮%s\n' "$P" "$N"
-  printf '  %s│%s   %s[ 1 ]%s  INSTALL / APPLY THEME                                         %s│%s\n' "$P" "$N" "$G$BB" "$N" "$P" "$N"
-  printf '  %s│%s   %s[ 2 ]%s  UNINSTALL THEME                                               %s│%s\n' "$P" "$N" "$R$BB" "$N" "$P" "$N"
+  printf '  %s│%s   %s[ 1 ]%s  INSTALL / APPLY THEME  [LOCKED]                                         %s│%s\n' "$P" "$N" "$G$BB" "$N" "$P" "$N"
+  printf '  %s│%s   %s[ 2 ]%s  UNINSTALL THEME  [LOCKED]                                               %s│%s\n' "$P" "$N" "$R$BB" "$N" "$P" "$N"
   printf '  %s│%s   %s[ 0 ]%s  BACK                                                        %s│%s\n' "$P" "$N" "$Y$BB" "$N" "$P" "$N"
   printf '  %s╰──────────────────────────────────────────────────────────────────────────╯%s\n\n' "$P" "$N"
   read -r -p "$(printf '  %sL4XXYHOST%s %s›%s Select action: ' "$C$BB" "$N" "$M" "$N")" action
