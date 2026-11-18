@@ -70,26 +70,26 @@ while true; do
               package="$PANEL_DIR/$name.blueprint"
               if [[ ! -f "$package" ]]; then
                 echo -e "\n  ${Y}Package missing: $package${N}"
-                echo -e "  ${D}Paste the official HTTPS download URL for this .blueprint package.${N}"
-                read -r -p "  Package URL (blank to cancel): " package_url
-                if [[ -n "$package_url" ]]; then
-                  if [[ "$package_url" != https://* ]]; then
-                    echo -e "  ${R}Only HTTPS package URLs are accepted.${N}"
-                  elif ! command -v curl >/dev/null 2>&1; then
-                    echo -e "  ${R}curl is required to download packages.${N}"
-                  elif curl -fL --retry 2 --connect-timeout 15 "$package_url" -o "$package.tmp" && unzip -tq "$package.tmp" >/dev/null 2>&1; then
-                    mv "$package.tmp" "$package"
-                    echo -e "  ${G}Package downloaded and ZIP integrity verified.${N}"
+                echo -e "  ${D}Checking common upload folders (/root, /home, /tmp)...${N}"
+                found="$(find /root /home /tmp -type f -name "$name.blueprint" -print -quit 2>/dev/null || true)"
+                if [[ -n "$found" ]] && unzip -tq "$found" >/dev/null 2>&1; then
+                  cp -- "$found" "$package"
+                  echo -e "  ${G}Found and verified package: $found${N}"
+                else
+                  echo -e "  ${Y}Upload the official $name.blueprint file using SFTP to /root/$name.blueprint, then retry.${N}"
+                  read -r -p "  Package file path (blank to cancel): " source_file
+                  if [[ -n "$source_file" && -f "$source_file" ]] && unzip -tq "$source_file" >/dev/null 2>&1; then
+                    cp -- "$source_file" "$package"
+                    echo -e "  ${G}Package copied and ZIP integrity verified.${N}"
                   else
-                    rm -f "$package.tmp"
-                    echo -e "  ${R}Download failed or file is not a valid Blueprint ZIP. Nothing installed.${N}"
+                    echo -e "  ${R}No valid package supplied. Install cancelled.${N}"
                   fi
                 fi
               fi
               if [[ -f "$package" ]]; then
                 (cd "$PANEL_DIR" && blueprint -install "$name")
               else
-                echo -e "  ${Y}Install cancelled: valid package not available.${N}"
+                echo -e "  ${Y}Install cancelled: package unavailable.${N}"
               fi
             fi
             pause
