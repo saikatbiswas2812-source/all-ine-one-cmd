@@ -7,12 +7,12 @@ set -u
 # ==========================================
 # 🎨 COLORS
 # ==========================================
-R="\e[31m"; G="\e[32m"; Y="\e[33m"
-B="\e[31m"; M="\e[91m"; C="\e[36m"
-W="\e[97m"; N="\e[0m"; D="\e[90m"
-BR="\e[1;31m"; BG="\e[1;32m"; BY="\e[1;33m"
-BM="\e[1;35m"; BC="\e[1;36m"; BW="\e[1;97m"
-
+# L4XXYHOST signature palette — obsidian, ruby, frost and muted silver.
+R=$'\033[38;5;196m'; G=$'\033[38;5;114m'; Y=$'\033[38;5;221m'
+B=$'\033[38;5;203m'; M=$'\033[38;5;197m'; C=$'\033[38;5;159m'
+W=$'\033[38;5;255m'; N=$'\033[0m'; D=$'\033[38;5;244m'
+BR=$'\033[1;38;5;196m'; BG=$'\033[1;38;5;114m'; BY=$'\033[1;38;5;221m'
+BM=$'\033[1;38;5;197m'; BC=$'\033[1;38;5;159m'; BW=$'\033[1;97m'
 URL="https://github.com/nobita329/Nobita-Cloud/raw/refs/heads/main/thame/Extension"
 selected_indices=()
 
@@ -107,62 +107,70 @@ run_blueprint() {
     fi
 }
 
-get_title() { printf '✦ L4XXYHOST  /  EXTENSION MARKETPLACE'; }
+get_title() { printf 'L4XXYHOST / BLACK LABEL EXTENSION VAULT'; }
 
-# ==========================================
-# 📋 MENU
-# ==========================================
+# Draw a compact, responsive marketplace. No external UI dependencies.
 show_menu() {
     clear
-    local total=${#names[@]} installed=0 i clean_name cols left right left_status right_status select_mark
+    local total=${#names[@]} installed=0 i clean_name cols width inner colw
+    local left right left_status right_status left_mark right_mark
     cols=$(tput cols 2>/dev/null || printf '80')
     [[ "$cols" =~ ^[0-9]+$ ]] || cols=80
     (( cols < 52 )) && cols=52
+    width=$(( cols - 4 ))
+    (( width > 76 )) && width=76
+    (( width < 48 )) && width=48
+    inner=$(( width - 2 ))
+    colw=$(( inner / 2 ))
 
     for clean_name in "${names[@]}"; do
         clean_name="${clean_name%.blueprint}"
         is_installed "$clean_name" && ((installed+=1))
     done
 
-    # Premium graphite / violet control-room layout.
-    printf "\n  ${BM}◆  L4XXY${N}  ${BW}EXTENSION STUDIO${N}  ${D}/  ADD-ON MARKETPLACE${N}\n"
-    printf "  ${D}MADE BY${N} ${BY}L4XXY${N}  ${D}•  SECURE PACKAGE CATALOGUE${N}\n"
-    printf "  ${M}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
-    printf "  ${D}HOST${N} ${W}%-14.14s${N}  ${D}USER${N} ${W}%-8.8s${N}  ${D}TIME${N} ${W}%s${N}\n" "$(hostname)" "$(whoami)" "$(date +'%H:%M')"
+    # Masthead
+    printf '\n  %s╭%*s╮%s\n' "$M" "$inner" '' "$N" | sed "s/ /─/g"
+    printf '  %s│%s  %sL4XXY%s  %s/  EXTENSION VAULT%s%*s%s│%s\n' "$M" "$N" "$BR" "$N" "$D" "$N" "$((inner-35))" '' "$M" "$N"
+    printf '  %s│%s  %sBLACK LABEL%s  %s•  BLUEPRINT ADD-ONS%s%*s%s│%s\n' "$M" "$N" "$BY" "$N" "$D" "$N" "$((inner-41))" '' "$M" "$N"
+    printf '  %s╰%*s╯%s\n' "$M" "$inner" '' "$N" | sed "s/ /─/g"
 
-    printf "\n  ${BC}CATALOGUE${N}  ${BW}%02d${N}     ${BG}INSTALLED${N}  ${BG}%02d${N}     ${BM}SELECTED${N}  ${BY}%02d${N}\n" "$total" "$installed" "${#selected_indices[@]}"
-    printf "  ${M}────────────────────────────────────────────────────────────────${N}\n"
-    printf "  ${BW}✦  EXTENSION LIBRARY${N}  ${D}Choose add-ons by number${N}\n\n"
+    # Compact live status strip
+    printf '\n  %sHOST%s %-16.16s  %sOPERATOR%s %-8.8s  %sLOCAL%s %s\n' "$D" "$N" "$(hostname)" "$D" "$N" "$(whoami)" "$D" "$N" "$(date +'%H:%M')"
+    printf '\n  %s╭───────────────────┬───────────────────┬───────────────────╮%s\n' "$D" "$N"
+    printf '  %s│%s  %sLIBRARY%s  %02d       %s│%s  %sINSTALLED%s  %02d     %s│%s  %sQUEUED%s  %02d      %s│%s\n' "$D" "$N" "$BC" "$N" "$total" "$D" "$N" "$BG" "$N" "$installed" "$D" "$N" "$BY" "$N" "${#selected_indices[@]}" "$D" "$N"
+    printf '  %s╰───────────────────┴───────────────────┴───────────────────╯%s\n' "$D" "$N"
 
-    if (( cols >= 96 )); then
+    printf '\n  %s01%s  %s/  AVAILABLE EXTENSIONS%s\n' "$BR" "$N" "$BW" "$N"
+    printf '  %s     Select package IDs, then choose an action below.%s\n\n' "$D" "$N"
+
+    if (( cols >= 76 )); then
         for ((i=0; i<total; i+=2)); do
             left="${names[$i]%.blueprint}"
             is_installed "$left" && left_status="${BG}●${N}" || left_status="${D}○${N}"
-            is_selected "$i" && select_mark="${BY}◆${N}" || select_mark="${D}◇${N}"
-            printf "  %b ${BC}%02d${N}  %-19.19s %b" "$select_mark" "$((i+1))" "$left" "$left_status"
+            is_selected "$i" && left_mark="${BY}◆${N}" || left_mark="${D}·${N}"
+            printf '  %b %s%02d%s %-*.*s %b' "$left_mark" "$BC" "$((i+1))" "$N" "$((colw-9))" "$((colw-9))" "$left" "$left_status"
             if (( i+1 < total )); then
                 right="${names[$((i+1))]%.blueprint}"
                 is_installed "$right" && right_status="${BG}●${N}" || right_status="${D}○${N}"
-                is_selected "$((i+1))" && select_mark="${BY}◆${N}" || select_mark="${D}◇${N}"
-                printf "    %b ${BC}%02d${N}  %-19.19s %b" "$select_mark" "$((i+2))" "$right" "$right_status"
+                is_selected "$((i+1))" && right_mark="${BY}◆${N}" || right_mark="${D}·${N}"
+                printf '   %b %s%02d%s %-*.*s %b' "$right_mark" "$BC" "$((i+2))" "$N" "$((colw-9))" "$((colw-9))" "$right" "$right_status"
             fi
-            printf "\n"
+            printf '\n'
         done
     else
         for ((i=0; i<total; i++)); do
             left="${names[$i]%.blueprint}"
             is_installed "$left" && left_status="${BG}●${N}" || left_status="${D}○${N}"
-            is_selected "$i" && select_mark="${BY}◆${N}" || select_mark="${D}◇${N}"
-            printf "  %b ${BC}%02d${N}  %-26.26s %b\n" "$select_mark" "$((i+1))" "$left" "$left_status"
+            is_selected "$i" && left_mark="${BY}◆${N}" || left_mark="${D}·${N}"
+            printf '  %b %s%02d%s %-*.*s %b\n' "$left_mark" "$BC" "$((i+1))" "$N" "$((width-12))" "$((width-12))" "$left" "$left_status"
         done
     fi
 
-    printf "\n  ${M}────────────────────────────────────────────────────────────────${N}\n"
-    printf "  ${BG}●${N} Installed   ${D}○${N} Available   ${BY}◆${N} Selected\n"
-    printf "  ${Y}Install / Remove available when Panel, Blueprint and a verified package are present.${N}\n"
-    printf "\n  ${BM}[i]${N} Install   ${BM}[r]${N} Remove   ${BC}[a]${N} Select all   ${BC}[c]${N} Clear   ${BR}[0]${N} Back\n"
+    printf '\n  %s────────────────────────────────────────────────────────────────────────%s\n' "$M" "$N"
+    printf '  %b Installed%s   %b Available%s   %b Selected%s\n' "$BG●" "$N" "$D○" "$N" "$BY◆" "$N"
+    printf '\n  %s[ I ]%s INSTALL    %s[ R ]%s REMOVE    %s[ A ]%s SELECT ALL    %s[ C ]%s CLEAR    %s[ 0 ]%s BACK\n' "$BR" "$N" "$BR" "$N" "$BC" "$N" "$BC" "$N" "$D" "$N"
+    printf '  %sL4XXYHOST%s %s›%s ' "$BC" "$N" "$BR" "$N"
 }
-
 # 🔁 MAIN LOOP
 # ==========================================
 while true; do
