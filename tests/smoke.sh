@@ -60,7 +60,7 @@ if ! command -v unzip >/dev/null 2>&1; then
   failed=1
 else
   mapfile -t theme_packages < <(sed -n '/^names=(/,/^)/p' "$ROOT/thame/thames.sh" | grep -oE '"[^"]+"' | tr -d '"')
-  mapfile -t extension_packages < <(sed -n '/^names=(/,/^)/p' "$ROOT/thame/Extension2.sh" | grep -oE '"[^"]+\\.blueprint"' | tr -d '"')
+  mapfile -t extension_packages < <(sed -n '/^names=(/,/^)/p' "$ROOT/thame/Extension2.sh" | grep -oE '"[^"]+\.blueprint"' | tr -d '"')
   declare -A seen_theme=() seen_extension=()
   for name in "${theme_packages[@]}"; do
     package="$ROOT/thame/UI/$name.blueprint"
