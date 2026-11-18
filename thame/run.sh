@@ -91,11 +91,11 @@ while true; do
                 echo ""
 
                 if [ "$installed" = false ]; then
-                    echo -e "   ${YELLOW}[1] Install  — LOCKED pending package verification${RESET}"
+                    echo -e "   ${YELLOW}[1] Install  ${RESET}"
                     echo -e "   ${RED}[0] Back${RESET}"
                 else
-                    echo -e "   ${YELLOW}[1] Reinstall  — LOCKED pending package verification${RESET}"
-                    echo -e "   ${YELLOW}[2] Update  — LOCKED pending package verification${RESET}"
+                    echo -e "   ${YELLOW}[1] Reinstall  ${RESET}"
+                    echo -e "   ${YELLOW}[2] Update  ${RESET}"
                     echo -e "   ${CYAN}[3] Info${RESET}"
                     echo -e "   ${CYAN}[4] Version${RESET}"
                     echo -e "   ${RED}[5] Uninstall${RESET}"
@@ -107,12 +107,23 @@ while true; do
 
                 case $bp in
                     1)
-                        echo -e "${YELLOW}Blueprint install/reinstall is temporarily disabled pending package verification.${RESET}"
-                        echo -e "${MUTED}No remote installer will be executed from this menu.${RESET}"
+                        if [[ ! -f /var/www/pterodactyl/artisan ]]; then
+                            echo -e "${RED}Pterodactyl Panel is not installed at /var/www/pterodactyl.${RESET}"
+                            echo -e "${MUTED}Install the Panel first; Blueprint cannot run without it.${RESET}"
+                        elif [[ -x /var/www/pterodactyl/blueprint.sh ]]; then
+                            (cd /var/www/pterodactyl && bash ./blueprint.sh)
+                        else
+                            echo -e "${YELLOW}Blueprint release files are not present in the Panel directory.${RESET}"
+                            echo -e "${MUTED}Install the official Blueprint release, then return here.${RESET}"
+                        fi
                         pause
                         ;;
                     2)
-                        echo -e "${YELLOW}Blueprint updates are temporarily disabled pending upstream package verification.${RESET}"
+                        if command -v blueprint >/dev/null 2>&1; then
+                            blueprint -update
+                        else
+                            echo -e "${RED}Blueprint CLI is not installed.${RESET}"
+                        fi
                         pause
                         ;;
                     3)
@@ -124,8 +135,13 @@ while true; do
                         pause
                         ;;
                     5)
-                        echo -e "${RED}Blueprint uninstall is disabled to protect panel files, extensions, and database data.${RESET}"
-                        echo -e "${MUTED}No files, services, or databases were changed.${RESET}"
+                        if command -v blueprint >/dev/null 2>&1; then
+                            echo -e "${YELLOW}This removes Blueprint framework files. Back up the Panel first.${RESET}"
+                            read -r -p "Type REMOVE BLUEPRINT to confirm: " confirm
+                            [[ "$confirm" == "REMOVE BLUEPRINT" ]] && blueprint -uninstall || echo "Cancelled."
+                        else
+                            echo -e "${RED}Blueprint CLI is not installed.${RESET}"
+                        fi
                         pause
                         ;;
                     0)
