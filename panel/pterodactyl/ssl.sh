@@ -107,102 +107,60 @@ EOF
 # ================= NO SSL CONFIGURATION =================
 elif [ "$OPTION" == "2" ]; then
     echo -e "${YELLOW}[*] Preparing environment...${NC}"
-    rm -f /etc/nginx/sites-enabled/default
-    rm -f /etc/nginx/sites-available/pterodactyl.conf
     cd /var/www/pterodactyl || { echo -e "${RED}[!] Pterodactyl directory not found!${NC}"; exit 1; }
-    echo -e "${GREEN}[+] Setting APP_URL to HTTP...${NC}"
-    sed -i "s|APP_URL=.*|APP_URL=http://${DOMAIN}|g" .env
+    sed -i "s|^APP_URL=.*|APP_URL=http://${DOMAIN}|" .env
 
-    # Create Nginx Config (Non-SSL)
     cat > /etc/nginx/sites-available/pterodactyl.conf <<EOF
 server {
     listen 80;
     server_name ${DOMAIN};
-
     root /var/www/pterodactyl/public;
     index index.php;
     charset utf-8;
-
-    location / {
-        try_files \$uri \$uri/ /index.php?\$query_string;
-    }
-
     client_max_body_size 100m;
     client_body_timeout 120s;
     sendfile off;
-
+    location / {
+        try_files \\$uri \\$uri/ /index.php?\$query_string;
+    }
     location ~ \.php\$ {
         fastcgi_split_path_info ^(.+\.php)(/.+)\$;
         fastcgi_pass unix:/run/php/php${PHP_VERSION}-fpm.sock;
         fastcgi_index index.php;
         include fastcgi_params;
-        fastcgi_param PHP_VALUE "upload_max_filesize=100M \n post_max_size=100M";
-        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME \\$document_root\$fastcgi_script_name;
     }
-
-    location ~ /\.ht {
-        deny all;
-    }
+    location ~ /\.ht { deny all; }
 }
 EOF
 
+elif [ "$OPTION" == "3" ]; then
+    echo -e "${YELLOW}[*] Requesting a Let's Encrypt certificate...${NC}"
+    read -r -p "Enter email address for certificate notices: " EMAIL
+    if [[ ! "${EMAIL}" =~ ^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$ ]]; then
+        echo -e "${RED}[!] Invalid email address.${NC}"
+        exit 1
+    fi
+    apt-get update
+    apt-get install -y certbot python3-certbot-nginx
+    certbot --nginx -d "${DOMAIN}" --non-interactive --agree-tos -m "${EMAIL}" --redirect
+    exit $?
+
 else
-    echo -e "${RED}[!] Invalid Option selected. Exiting.${NC}"
+    echo -e "${RED}[!] Invalid option. Choose 1, 2, or 3.${NC}"
     exit 1
 fi
 
 # --- Finalize ---
-echo -e "${YELLOW}[*] Enabling Configuration...${NC}"
-echo -e "${YELLOW}[*] Testing Nginx Configuration...${NC}"
-nginx -t
-
-if [ $? -eq 0 ]; then
-    systemctl restart nginx
+echo -e "${YELLOW}[*] Enabling configuration...${NC}"
+ln -sfn /etc/nginx/sites-available/pterodactyl.conf /etc/nginx/sites-enabled/pterodactyl.conf
+echo -e "${YELLOW}[*] Testing Nginx configuration...${NC}"
+if nginx -t; then
+    systemctl reload nginx
     echo ""
-    echo -e "${CYAN}=========================================${NC}"
-    echo -e "${GREEN}✔ Setup Successfully Completed!${NC}"
-    echo -e "Panel URL: ${BOLD}http$( [ "$OPTION" == "1" ] && echo "s" )://${DOMAIN}${NC}"
-    echo -e "${CYAN}=========================================${NC}"
+    echo -e "${GREEN}✔ Configuration completed successfully.${NC}"
+    echo -e "Panel URL: ${BOLD}https$( [ "$OPTION" == "1" ] && echo "s" )://${DOMAIN}${NC}"
 else
-    echo ""
-    echo -e "${RED}[!] Nginx configuration failed. Please check errors above.${NC}"
-fi
-
-# ================= NO SSL CONFIGURATION =================
-elif [ "$OPTION" == "3" ]; then
-# --- Header ---
-clear
-echo -e "${CYAN}${BOLD}=========================================${NC}"
-echo -e "${CYAN}      AUTO SSL GENERATOR (Certbot)       ${NC}"
-echo -e "${CYAN}=========================================${NC}"
-echo ""
-EMAIL="ssl$(tr -dc a-z0-9 </dev/urandom | head -c6)@nobita.com"
-# --- 1. Get Inputs ---
-read -p "Enter your Domain (e.g., panel.example.com): " DOMAIN
-# --- 2. Install Dependencies ---
-echo ""
-echo -e "${YELLOW}[*] Updating system repositories...${NC}"
-apt update -y
-
-echo -e "${YELLOW}[*] Installing Certbot and Nginx plugin...${NC}"
-apt install certbot python3-certbot-nginx -y
-# --- 4. Run Certbot ---
-echo ""
-echo -e "${GREEN}[*] Requesting SSL Certificate...${NC}"
-
-# The magic command
-certbot --nginx -d ${DOMAIN} --non-interactive --agree-tos -m ${EMAIL} --redirect
-
-# --- 5. Verify Success ---
-if [ $? -eq 0 ]; then
-    echo ""
-    echo -e "${CYAN}=========================================${NC}"
-    echo -e "${GREEN}✔ SSL Installed Successfully!${NC}"
-    echo -e "${GREEN}✔ HTTPS Redirection Enabled.${NC}"
-    echo -e "Your Panel is live at: ${BOLD}https://${DOMAIN}${NC}"
-    echo -e "${CYAN}=========================================${NC}"
-else
-    echo ""
-    echo -e "${RED}[!] SSL Generation Failed.${NC}"
-    echo -e "${YELLOW}Please check if your domain points to this IP address.${NC}"
+    echo -e "${RED}[!] Nginx configuration failed. Fix the errors before reloading Nginx.${NC}"
+    exit 1
 fi
