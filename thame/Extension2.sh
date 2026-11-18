@@ -16,8 +16,7 @@ BM="\e[1;35m"; BC="\e[1;36m"; BW="\e[1;97m"
 URL="https://github.com/nobita329/Nobita-Cloud/raw/refs/heads/main/thame/Extension"
 selected_indices=()
 
-trap 'echo -e "
-${R}[!] Force exit detected.${N}"; exit 1' SIGINT
+trap 'echo -e "\n${R}[!] Force exit detected.${N}"; exit 1' SIGINT
 
 # ==========================================
 # 🧠 BLUEPRINT LIST
@@ -105,8 +104,7 @@ run_blueprint() {
         fi
         read -r -p "Type REMOVE to uninstall $slug: " confirm
         [[ "$confirm" == "REMOVE" ]] || { echo "Cancelled."; return 2; }
-        # Blueprint asks for a second confirmation by default. The explicit REMOVE
-        # confirmation above is our safety gate, so tell Blueprint it was confirmed.
+        # The typed REMOVE confirmation is the safety gate; skip Blueprint's duplicate prompt.
         USER_CONFIRMED_REMOVAL=yes blueprint -remove "$slug"
     fi
 }
@@ -129,24 +127,14 @@ show_menu() {
     done
 
     # Premium graphite / violet control-room layout.
-    printf "
-  ${BM}◆  L4XXY${N}  ${BW}EXTENSION STUDIO${N}  ${D}/  ADD-ON MARKETPLACE${N}
-"
-    printf "  ${D}MADE BY${N} ${BY}L4XXY${N}  ${D}•  SECURE PACKAGE CATALOGUE${N}
-"
-    printf "  ${M}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}
-"
-    printf "  ${D}HOST${N} ${W}%-14.14s${N}  ${D}USER${N} ${W}%-8.8s${N}  ${D}TIME${N} ${W}%s${N}
-" "$(hostname)" "$(whoami)" "$(date +'%H:%M')"
+    printf "\n  ${BM}◆  L4XXY${N}  ${BW}EXTENSION STUDIO${N}  ${D}/  ADD-ON MARKETPLACE${N}\n"
+    printf "  ${D}MADE BY${N} ${BY}L4XXY${N}  ${D}•  SECURE PACKAGE CATALOGUE${N}\n"
+    printf "  ${M}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
+    printf "  ${D}HOST${N} ${W}%-14.14s${N}  ${D}USER${N} ${W}%-8.8s${N}  ${D}TIME${N} ${W}%s${N}\n" "$(hostname)" "$(whoami)" "$(date +'%H:%M')"
 
-    printf "
-  ${BC}CATALOGUE${N}  ${BW}%02d${N}     ${BG}INSTALLED${N}  ${BG}%02d${N}     ${BM}SELECTED${N}  ${BY}%02d${N}
-" "$total" "$installed" "${#selected_indices[@]}"
-    printf "  ${M}────────────────────────────────────────────────────────────────${N}
-"
-    printf "  ${BW}✦  EXTENSION LIBRARY${N}  ${D}Choose add-ons by number${N}
-
-"
+    printf "\n  ${BC}CATALOGUE${N}  ${BW}%02d${N}     ${BG}INSTALLED${N}  ${BG}%02d${N}     ${BM}SELECTED${N}  ${BY}%02d${N}\n" "$total" "$installed" "${#selected_indices[@]}"
+    printf "  ${M}────────────────────────────────────────────────────────────────${N}\n"
+    printf "  ${BW}✦  EXTENSION LIBRARY${N}  ${D}Choose add-ons by number${N}\n\n"
 
     if (( cols >= 96 )); then
         for ((i=0; i<total; i+=2)); do
@@ -160,29 +148,21 @@ show_menu() {
                 is_selected "$((i+1))" && select_mark="${BY}◆${N}" || select_mark="${D}◇${N}"
                 printf "    %b ${BC}%02d${N}  %-19.19s %b" "$select_mark" "$((i+2))" "$right" "$right_status"
             fi
-            printf "
-"
+            printf "\n"
         done
     else
         for ((i=0; i<total; i++)); do
             left="${names[$i]%.blueprint}"
             is_installed "$left" && left_status="${BG}●${N}" || left_status="${D}○${N}"
             is_selected "$i" && select_mark="${BY}◆${N}" || select_mark="${D}◇${N}"
-            printf "  %b ${BC}%02d${N}  %-26.26s %b
-" "$select_mark" "$((i+1))" "$left" "$left_status"
+            printf "  %b ${BC}%02d${N}  %-26.26s %b\n" "$select_mark" "$((i+1))" "$left" "$left_status"
         done
     fi
 
-    printf "
-  ${M}────────────────────────────────────────────────────────────────${N}
-"
-    printf "  ${BG}●${N} Installed   ${D}○${N} Available   ${BY}◆${N} Selected
-"
-    printf "  ${Y}Install / Remove available when Panel, Blueprint and a verified package are present.${N}
-"
-    printf "
-  ${BM}[i]${N} Install   ${BM}[r]${N} Remove   ${BC}[a]${N} Select all   ${BC}[c]${N} Clear   ${BR}[0]${N} Back
-"
+    printf "\n  ${M}────────────────────────────────────────────────────────────────${N}\n"
+    printf "  ${BG}●${N} Installed   ${D}○${N} Available   ${BY}◆${N} Selected\n"
+    printf "  ${Y}Install / Remove available when Panel, Blueprint and a verified package are present.${N}\n"
+    printf "\n  ${BM}[i]${N} Install   ${BM}[r]${N} Remove   ${BC}[a]${N} Select all   ${BC}[c]${N} Clear   ${BR}[0]${N} Back\n"
 }
 
 # 🔁 MAIN LOOP
@@ -192,8 +172,7 @@ while true; do
     read -r -p "$(echo -e "  ${BC}L4XXYHOST ${BM}›${N} Select IDs or action: ")" choice
 
     case $choice in
-        0) echo -e "
-${M} Returning to Theme Studio...${N}"; exit 0 ;;
+        0) echo -e "\n${M} Returning to Theme Studio...${N}"; exit 0 ;;
         c|C) selected_indices=() ;;
         a|A) 
             selected_indices=()
