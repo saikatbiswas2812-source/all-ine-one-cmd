@@ -1,30 +1,51 @@
-# ⚙️ Pterodactyl Auto Installer
+# L4xxyHost — Server & Panel Installer
 
-One-command setup for Panel + Wings 🚀
+A community-maintained toolkit for deploying and managing game-server infrastructure.
 
-## 🚀 Install
+> **Status:** Rebranded fork. Individual installers still need platform-specific testing before production use. Review every script before running it as root.
+
+## Features
+
+- Pterodactyl Panel and Wings installer modules
+- Additional panel installers (Reviactyl, Paymenter, Mythical, Convoy, and others where included)
+- VPS, themes, toolbox and extra utilities
+- Terminal-based server dashboard
+
+## Requirements
+
+- Ubuntu/Debian versions supported by the selected installer
+- Root or sudo access
+- A clean VPS is recommended for panel installations
+- Domain and DNS pointed to the server for HTTPS setup
+- Required ports opened in your provider firewall
+
+## Run from a local clone
+
 ```bash
-bash <(curl -s https://ptero.nobitahost.in)
+git clone https://github.com/saikatbiswas2812-source/all-ine-one-cmd.git
+cd all-ine-one-cmd
+chmod +x menu/run.sh menu/UI.sh
+sudo bash menu/run.sh
 ```
 
-## 📦 Includes
-- Pterodactyl Panel
-- Wings Daemon
-- Docker Engine
-- NGINX Web Server
-- MySQL / MariaDB
-- Redis Server
+## Important safety notes
 
-## 🧱 Requirements
-- Ubuntu 20.04+
-- Root access
-- 2GB RAM (4GB recommended)
-- Domain pointed to server
+- Read the selected installer before execution. Installers can change packages, services, firewall rules and databases.
+- Back up existing panel data and configuration before upgrades or removal.
+- The dashboard launcher runs local files only; it does not download and execute an unaudited remote payload.
+- Destructive removal actions are intentionally not offered by the dashboard.
+- Never publish API keys, passwords, tokens, panel credentials or private configuration files.
 
-## ⚠️ Notes
-- Open ports 80 & 443
-- Use clean VPS
-- SSL requires domain
+## One-line installer domain
 
-## ❤️ Support
-Star ⭐ the repo if useful!
+The intended command is:
+
+```bash
+bash <(curl -fsSL https://petro.l4xxyhost.in)
+```
+
+This command will work only after the domain DNS, HTTPS hosting and root installer endpoint have been configured and tested. It is **not yet a live installer endpoint**.
+
+## License and provenance
+
+The existing repository license file is retained. This project is a rebranded fork; upstream sources and third-party components remain subject to their respective licenses and terms.
