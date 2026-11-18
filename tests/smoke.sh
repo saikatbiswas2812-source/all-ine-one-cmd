@@ -36,5 +36,22 @@ else
   printf '[PASS] Hyper V1 option is absent.\n'
 fi
 
+# Exercise parent -> child -> parent navigation with scripted input.
+run_navigation_test() {
+  local label="$1" input="$2" logfile="$3"
+  if printf '%b' "$input" | TERM=xterm bash "$ROOT/thame/run.sh" >"$logfile" 2>&1; then
+    printf '[PASS] %s navigation\n' "$label"
+  else
+    printf '[FAIL] %s navigation\n' "$label"
+    cat "$logfile"
+    failed=1
+  fi
+}
+tmpdir="$(mktemp -d)"
+trap 'rm -rf "$tmpdir"' EXIT
+run_navigation_test "Theme gallery" '2\n0\n\n0\n' "$tmpdir/theme.log"
+run_navigation_test "Extension marketplace" '3\n0\n\n0\n' "$tmpdir/extensions.log"
+run_navigation_test "Blueprint framework submenu" '1\n0\n0\n' "$tmpdir/blueprint.log"
+
 printf '\nChecked %d shell scripts.\n' "$checked"
 exit "$failed"
