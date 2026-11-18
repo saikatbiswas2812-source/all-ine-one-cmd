@@ -116,7 +116,7 @@ show_menu() {
     done
 
     echo -e "\n  ${D}  ────────────────────────────────────────────────────────────────────────────${N}"
-    echo -e "   ${BG}●${N} Installed   ${R}○${N} Available   ${BY}◆${N} Selected"
+    echo -e "   ${BG}●${N} Installed   ${R}○${N} Available   ${BY}◆${N} Selected   ${Y}Install/Remove locked pending audit${N}"
     echo -e "\n  ${C}╭──────────────────────────────────────────────────────────────────────────────╮${N}"
     echo -e "  ${C}│${N}  ${BG}[i]${N} INSTALL   ${BR}[r]${N} REMOVE   ${BM}[a]${N} SELECT ALL   ${BC}[c]${N} CLEAR   ${R}[0]${N} BACK"
     echo -e "  ${C}╰──────────────────────────────────────────────────────────────────────────────╯${N}"
