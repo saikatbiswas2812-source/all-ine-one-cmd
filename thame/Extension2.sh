@@ -8,7 +8,7 @@ set -u
 # 🎨 COLORS
 # ==========================================
 R="\e[31m"; G="\e[32m"; Y="\e[33m"
-B="\e[34m"; M="\e[35m"; C="\e[36m"
+B="\e[31m"; M="\e[91m"; C="\e[36m"
 W="\e[97m"; N="\e[0m"; D="\e[90m"
 BR="\e[1;31m"; BG="\e[1;32m"; BY="\e[1;33m"
 BM="\e[1;35m"; BC="\e[1;36m"; BW="\e[1;97m"
@@ -60,10 +60,32 @@ is_selected() {
 run_blueprint() {
     local NAME="$1"
     local ACTION="$2"
-    echo -e "${Y}[!] ${ACTION^} is temporarily disabled for ${NAME%.blueprint}.${N}"
-    echo -e "${D}Third-party Blueprint packages have not yet passed source, checksum, and compatibility review.${N}"
-    echo -e "${G}[i] No files, panel data, or database records were changed.${N}"
-    return 2
+    local panel="/var/www/pterodactyl"
+    local slug="${NAME%.blueprint}"
+    if [[ ! -f "$panel/artisan" ]]; then
+        echo -e "${R}[!] Pterodactyl Panel is not installed. Install it first.${N}"
+        return 2
+    fi
+    if ! command -v blueprint >/dev/null 2>&1; then
+        echo -e "${Y}[!] Blueprint CLI is not installed. Install Blueprint Framework first.${N}"
+        return 2
+    fi
+    if [[ "$ACTION" == "install" ]]; then
+        if [[ ! -f "$panel/$NAME" ]]; then
+            echo -e "${Y}[!] Package missing: $panel/$NAME${N}"
+            echo -e "${D}Upload a verified .blueprint package into the Panel directory first.${N}"
+            return 2
+        fi
+        (cd "$panel" && blueprint -install "$slug")
+    else
+        if ! is_installed "$slug"; then
+            echo -e "${Y}[!] $slug is not installed.${N}"
+            return 2
+        fi
+        read -r -p "Type REMOVE to uninstall $slug: " confirm
+        [[ "$confirm" == "REMOVE" ]] || { echo "Cancelled."; return 2; }
+        blueprint -remove "$slug"
+    fi
 }
 
 get_title() { printf '✦ L4XXYHOST  /  EXTENSION MARKETPLACE'; }
@@ -118,7 +140,7 @@ show_menu() {
 
     printf "\n  ${M}────────────────────────────────────────────────────────────────${N}\n"
     printf "  ${BG}●${N} Installed   ${D}○${N} Available   ${BY}◆${N} Selected\n"
-    printf "  ${Y}Install / Remove unavailable until package security review is complete.${N}\n"
+    printf "  ${Y}Install / Remove available when Panel, Blueprint and a verified package are present.${N}\n"
     printf "\n  ${BM}[i]${N} Install   ${BM}[r]${N} Remove   ${BC}[a]${N} Select all   ${BC}[c]${N} Clear   ${BR}[0]${N} Back\n"
 }
 
