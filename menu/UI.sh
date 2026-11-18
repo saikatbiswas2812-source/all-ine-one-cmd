@@ -1,79 +1,1643 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-NC=$'\033[0m'; BOLD=$'\033[1m'
-RED=$'\033[38;5;196m'; DARKRED=$'\033[38;5;88m'
-PALE=$'\033[38;5;203m'; WHITE=$'\033[38;5;255m'
-MUTED=$'\033[38;5;245m'; GREY=$'\033[38;5;238m'
-GOLD=$'\033[38;5;220m'; GREEN=$'\033[38;5;82m'
 
-metrics() {
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+NC=$'\033[0m'; BOLD=$'\033[1m'; DIM=$'\033[2m'
+WHITE=$'\033[38;5;255m'; MUTED=$'\033[38;5;245m'
+PURPLE=
+CYAN=
+RED=
+BG=$'\033[48;5;235m'
+
+metrics(){
   CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
   RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
   DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
   UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
   CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
 }
-pause() { printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _ || true; }
-launch_themes() {
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
   local file="$ROOT/thame/run.sh"
-  if [[ -f "$file" ]]; then bash "$file"
-  else printf '\n  %s[!] Theme & Extension module is missing.%s\n' "$RED" "$NC"; pause
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
   fi
-}
-get_width() {
-  local cols
-  cols="$(tput cols 2>/dev/null || printf '80')"
-  [[ "$cols" =~ ^[0-9]+$ ]] || cols=80
-  (( cols < 58 )) && cols=58
-  (( cols > 92 )) && cols=92
-  printf '%s' "$cols"
-}
-line() {
-  local width=$1 char=$2
-  printf '  %s' "$DARKRED"
-  printf '%*s' "$((width - 4))" '' | tr ' ' "$char"
-  printf '%s\n' "$NC"
 }
 
 while true; do
   metrics
   clear
-  WIDTH="$(get_width)"
-  INNER=$((WIDTH - 4))
   printf '\n'
-  printf '  ${RED}╔'; printf '%*s' "$((INNER - 2))" '' | tr ' ' '═'; printf '╗${NC}\n'
-  printf '  ${RED}║${NC}  ${PALE}☠  L4XXYHOST${NC}  ${WHITE}NIGHTFALL CONTROL${NC}  ${MUTED}// PRIVATE SERVER COMMAND${NC}%*s${RED}║${NC}\n' "$((INNER - 48))" ''
-  printf '  ${RED}╠'; printf '%*s' "$((INNER - 2))" '' | tr ' ' '─'; printf '╣${NC}\n'
-  printf '  ${RED}║${NC}  ${GOLD}MADE BY L4XXY${NC}  ${MUTED}•  EST. 2026  •  AUTHORIZED ACCESS ONLY${NC}%*s${RED}║${NC}\n' "$((INNER - 52))" ''
-  printf '  ${RED}╚'; printf '%*s' "$((INNER - 2))" '' | tr ' ' '═'; printf '╝${NC}\n'
-
-  printf '\n  ${PALE}▰ SYSTEM STATUS${NC}   ${GREEN}● ONLINE${NC}   ${MUTED}NODE${NC} ${WHITE}%s${NC}\n' "$(hostname)"
-  printf '  ${MUTED}CPU${NC} ${PALE}%s%%${NC}   ${MUTED}RAM${NC} ${PALE}%s%%${NC}   ${MUTED}DISK${NC} ${GOLD}%s${NC}   ${MUTED}UPTIME${NC} ${WHITE}%s${NC}\n' "$CPU" "$RAM" "$DISK" "$UP"
-  line "$WIDTH" '━'
-  printf '  ${RED}✦ OPERATIONS${NC}  ${MUTED}// SELECT YOUR DESTINATION${NC}\n\n'
-
-  printf '  ${DARKRED}╭'; printf '%*s' "$((INNER - 2))" '' | tr ' ' '─'; printf '╮${NC}\n'
-  printf '  ${DARKRED}│${NC}  ${PALE}01${NC}  ${WHITE}THEME & EXTENSION CENTER${NC}%*s${DARKRED}│${NC}\n' "$((INNER - 33))" ''
-  printf '  ${DARKRED}│${NC}      ${MUTED}Blueprint  •  Themes  •  Extensions  •  Add-ons${NC}%*s${DARKRED}│${NC}\n' "$((INNER - 55))" ''
-  printf '  ${DARKRED}╰'; printf '%*s' "$((INNER - 2))" '' | tr ' ' '─'; printf '╯${NC}\n'
-
-  printf '\n  ${GREY}╭'; printf '%*s' "$((INNER - 2))" '' | tr ' ' '─'; printf '╮${NC}\n'
-  printf '  ${GREY}│${NC}  ${RED}[ 1 ]${NC}  ${WHITE}ENTER THE RED ROOM${NC}%*s${GREY}│${NC}\n' "$((INNER - 29))" ''
-  printf '  ${GREY}│${NC}  ${RED}[ 0 ]${NC}  ${MUTED}EXIT CONTROL CENTER${NC}%*s${GREY}│${NC}\n' "$((INNER - 30))" ''
-  printf '  ${GREY}╰'; printf '%*s' "$((INNER - 2))" '' | tr ' ' '─'; printf '╯${NC}\n'
-
-  printf '\n  ${PALE}L4XXYHOST${NC} ${RED}›${NC} '
-  read -r choice || choice=0
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
   case "$choice" in
     1) launch_themes ;;
-    0|q|quit|exit)
-      printf '\n  ${RED}☠ SESSION TERMINATED. THANK YOU FOR USING L4XXYHOST.${NC}\n'
-      exit 0
-      ;;
-    *)
-      printf '\n  ${RED}[!] Invalid selection. Choose 1 or 0.${NC}\n'
-      sleep 1
-      ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;160m'; PINK=
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;196m'
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;203m'; GREEN=
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;160m'; PINK=
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;196m'
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;160m'; PINK=
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;196m'
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;196m'; GOLD=
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;160m'; PINK=
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;196m'
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;203m'; GREEN=
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;160m'; PINK=
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;196m'
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;160m'; PINK=
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;196m'
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;220m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;160m'; PINK=
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;196m'
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;203m'; GREEN=
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;160m'; PINK=
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;196m'
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;160m'; PINK=
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
+  esac
+done
+\033[38;5;196m'
+CYAN=$'\033[38;5;81m'; GREEN=$'\033[38;5;120m'
+RED=$'\033[38;5;203m'; GOLD=$'\033[38;5;221m'
+BG=$'\033[48;5;235m'
+
+metrics(){
+  CPU="$(top -bn1 2>/dev/null | awk -F'[, ]+' '/Cpu\(s\)/ {for(i=1;i<=NF;i++) if($i ~ /id/) {v=$(i-1); printf "%d",100-v; exit}}' || true)"
+  RAM="$(free 2>/dev/null | awk '/Mem:/ {if($2>0) printf "%d",($3/$2)*100}' || true)"
+  DISK="$(df -h / 2>/dev/null | awk 'NR==2 {print $5}' || true)"
+  UP="$(uptime -p 2>/dev/null | sed 's/^up //' || true)"
+  CPU="${CPU:-?}"; RAM="${RAM:-?}"; DISK="${DISK:-?}"; UP="${UP:-unknown}"
+}
+pause(){ printf '\n  %sPress Enter to return...%s' "$MUTED" "$NC"; read -r _; }
+launch_themes(){
+  local file="$ROOT/thame/run.sh"
+  if [[ -f "$file" ]]; then bash "$file"; else
+    printf '\n  %s[!] Themes & Extensions module is missing.%s\n' "$RED" "$NC"
+    pause
+  fi
+}
+
+while true; do
+  metrics
+  clear
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██╗     ██╗  ██╗██╗  ██╗██╗   ██╗██╗   ██╗██╗  ██╗ ██████╗ ███████╗████████╗%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██║  ██║╚██╗██╔╝╚██╗ ██╔╝╚██╗ ██╔╝██║  ██║██╔═══██╗██╔════╝╚══██╔══╝%s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ███████║ ╚███╔╝  ╚████╔╝  ╚████╔╝ ███████║██║   ██║███████╗   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s██║     ██╔══██║ ██╔██╗   ╚██╔╝    ╚██╔╝  ██╔══██║██║   ██║╚════██║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s███████╗██║  ██║██╔╝ ██╗   ██║      ██║   ██║  ██║╚██████╔╝███████║   ██║   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝   %s %s│%s\n' "$PURPLE" "$NC" "$PINK$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %sP R E M I U M   S E R V E R   C O N T R O L   S U I T E%s              %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s       %s✦  MADE BY L4XXY  •  THEME STUDIO  •  EST. 2026%s                     %s│%s\n' "$PURPLE" "$NC" "$GOLD$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  printf '  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭───────────────╮%s  %s╭────────────────╮%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s│%s  %s● ONLINE%s   %s│%s  %sCPU  %s%%%s   %s│%s  %sRAM  %s%%%s   %s│%s  %sDISK  %s%s%s   %s│%s\n' "$GREEN" "$NC" "$GREEN$BOLD" "$NC" "$GREEN" "$NC" "$CYAN" "$CPU" "$NC" "$CYAN" "$NC" "$PINK" "$RAM" "$NC" "$PINK" "$NC" "$GOLD" "$DISK" "$NC" "$GOLD" "$NC"
+  printf '  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰───────────────╯%s  %s╰────────────────╯%s\n' "$GREEN" "$NC" "$CYAN" "$NC" "$PINK" "$NC" "$GOLD" "$NC"
+  printf '  %s↳ HOST%s  %s%s%s     %s↳ UPTIME%s  %s%s%s\n\n' "$PURPLE" "$NC" "$WHITE" "$(hostname)" "$NC" "$PURPLE" "$NC" "$WHITE" "$UP" "$NC"
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PINK" "$NC"
+  printf '  %s│%s   %s✧  THEME & EXTENSION CENTER%s                                             %s│%s\n' "$PINK" "$NC" "$PINK$BOLD" "$NC" "$PINK" "$NC"
+  printf '  %s│%s      %sBlueprint  ·  Themes  ·  Extensions  ·  Add-ons%s                     %s│%s\n' "$PINK" "$NC" "$MUTED" "$NC" "$PINK" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PINK" "$NC"
+  printf '\n'
+  printf '  %s╭──────────────────────────────────────────────────────────────────────────────╮%s\n' "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 1 ]%s   %s✦  LAUNCH THEME & EXTENSION CENTER%s                            %s│%s\n' "$PURPLE" "$NC" "$CYAN$BOLD" "$NC" "$WHITE$BOLD" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s                                                                              %s│%s\n' "$PURPLE" "$NC" "$PURPLE" "$NC"
+  printf '  %s│%s   %s[ 0 ]%s   %sEXIT CONTROL CENTER%s                                           %s│%s\n' "$PURPLE" "$NC" "$RED$BOLD" "$NC" "$MUTED" "$NC" "$PURPLE" "$NC"
+  printf '  %s╰──────────────────────────────────────────────────────────────────────────────╯%s\n' "$PURPLE" "$NC"
+  printf '\n'
+  read -r -p "$(printf '  %sL4XXYHOST%s %s›%s ' "$CYAN$BOLD" "$NC" "$PINK" "$NC")" choice
+  case "$choice" in
+    1) launch_themes ;;
+    0|q|quit|exit) printf '\n  %s✦ Thank you for choosing L4xxyHost. Made with pride by L4xxy.%s\n' "$GOLD" "$NC"; exit 0 ;;
+    *) printf '\n  %sInvalid option. Choose 1 or 0.%s\n' "$RED" "$NC"; sleep 1 ;;
   esac
 done
