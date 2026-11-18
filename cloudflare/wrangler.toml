@@ -1,0 +1,9 @@
+name = "l4xxyhost-installer"
+main = "worker.js"
+compatibility_date = "2026-11-18"
+
+workers_dev = false
+
+routes = [
+  { pattern = "l4xxyhost.in/*", zone_name = "l4xxyhost.in" }
+]
