@@ -62,7 +62,19 @@ is_selected() {
 run_blueprint() {
     local NAME="$1"
     local ACTION="$2"
-    cd /var/www/pterodactyl || exit 1
+
+    # Extensions require an existing Pterodactyl panel and Blueprint CLI.
+    if [[ ! -d "/var/www/pterodactyl" ]]; then
+        echo -e "${R}[!] Pterodactyl panel not found at /var/www/pterodactyl.${N}"
+        echo -e "${Y}[i] Install the panel first. No changes were made.${N}"
+        return 1
+    fi
+    if ! command -v blueprint >/dev/null 2>&1; then
+        echo -e "${R}[!] Blueprint CLI is not installed. No changes were made.${N}"
+        return 1
+    fi
+
+    cd /var/www/pterodactyl || return 1
     if [[ "$ACTION" == "install" ]]; then
         echo -e "${G}📥 Installing ${NAME%.blueprint}...${N}"
         wget -q "$URL/$NAME" -O "$NAME"
