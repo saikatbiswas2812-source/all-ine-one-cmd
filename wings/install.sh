@@ -173,6 +173,24 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+# Wings needs a real systemd host and a Docker-capable kernel environment.
+if ! command -v systemctl >/dev/null 2>&1 || [[ "$(ps -p 1 -o comm= 2>/dev/null | tr -d ' ')" != "systemd" ]]; then
+    print_fail "systemd is not PID 1. This environment cannot run the Wings system service."
+    print_info "Use a full VPS/dedicated host with systemd; containers/PRoot environments are not supported."
+    exit 1
+fi
+if command -v systemd-detect-virt >/dev/null 2>&1; then
+    VIRT="$(systemd-detect-virt 2>/dev/null || true)"
+    if [[ "$VIRT" == "proot" ]]; then
+        print_fail "PRoot virtualization detected. Docker/Wings cannot be installed reliably here."
+        exit 1
+    fi
+fi
+if ! command -v curl >/dev/null 2>&1; then
+    print_fail "curl is required. Install curl and retry."
+    exit 1
+fi
+
 confirm "Begin Pterodactyl Wings installation?" || {
     print_info "Installation cancelled by user"
     exit 0
@@ -187,11 +205,21 @@ print_step "Docker Engine" "🐳"
 if command -v docker &>/dev/null; then
     print_ok "Docker already installed ($(docker --version 2>/dev/null))"
 else
-    print_status "Downloading & installing Docker"
+    print_status "Downloading Docker installer"
     section_start
-    curl -sSL https://get.docker.com/ | CHANNEL=stable bash > /dev/null 2>&1 &
-    spinner $! "Installing Docker"
-    check_success $? "Docker installed" "$(section_end)"
+    installer="$(mktemp)"
+    if ! curl -fsSL https://get.docker.com -o "$installer"; then
+        rm -f "$installer"
+        print_fail "Could not download Docker installer"
+        exit 1
+    fi
+    if ! bash "$installer" >/dev/null 2>&1; then
+        rm -f "$installer"
+        print_fail "Docker installation failed"
+        exit 1
+    fi
+    rm -f "$installer"
+    print_ok "Docker installed $(section_end)"
 fi
 
 print_status "Ensuring Docker service is running"
