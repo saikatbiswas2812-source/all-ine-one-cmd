@@ -66,11 +66,31 @@ while true; do
               echo -e "\n  ${R}Pterodactyl Panel not found at $PANEL_DIR. Install Panel first.${N}"
             elif ! command -v blueprint >/dev/null 2>&1; then
               echo -e "\n  ${Y}Blueprint CLI not found. Install Blueprint Framework first.${N}"
-            elif [[ ! -f "$PANEL_DIR/$name.blueprint" ]]; then
-              echo -e "\n  ${Y}Package missing: $PANEL_DIR/$name.blueprint${N}"
-              echo -e "  ${D}Place a trusted, verified .blueprint package there, then retry.${N}"
             else
-              (cd "$PANEL_DIR" && blueprint -install "$name")
+              package="$PANEL_DIR/$name.blueprint"
+              if [[ ! -f "$package" ]]; then
+                echo -e "\n  ${Y}Package missing: $package${N}"
+                echo -e "  ${D}Paste the official HTTPS download URL for this .blueprint package.${N}"
+                read -r -p "  Package URL (blank to cancel): " package_url
+                if [[ -n "$package_url" ]]; then
+                  if [[ "$package_url" != https://* ]]; then
+                    echo -e "  ${R}Only HTTPS package URLs are accepted.${N}"
+                  elif ! command -v curl >/dev/null 2>&1; then
+                    echo -e "  ${R}curl is required to download packages.${N}"
+                  elif curl -fL --retry 2 --connect-timeout 15 "$package_url" -o "$package.tmp" && unzip -tq "$package.tmp" >/dev/null 2>&1; then
+                    mv "$package.tmp" "$package"
+                    echo -e "  ${G}Package downloaded and ZIP integrity verified.${N}"
+                  else
+                    rm -f "$package.tmp"
+                    echo -e "  ${R}Download failed or file is not a valid Blueprint ZIP. Nothing installed.${N}"
+                  fi
+                fi
+              fi
+              if [[ -f "$package" ]]; then
+                (cd "$PANEL_DIR" && blueprint -install "$name")
+              else
+                echo -e "  ${Y}Install cancelled: valid package not available.${N}"
+              fi
             fi
             pause
             ;;
