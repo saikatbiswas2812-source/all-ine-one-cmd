@@ -71,6 +71,16 @@ run_blueprint() {
         return 2
     fi
     if [[ "$ACTION" == "install" ]]; then
+        bundled_package="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/Extension/$NAME"
+        if [[ ! -f "$panel/$NAME" && -f "$bundled_package" ]]; then
+            if unzip -tq "$bundled_package" >/dev/null 2>&1; then
+                cp -- "$bundled_package" "$panel/$NAME"
+                echo -e "${G}[+] Using bundled extension package: $bundled_package${N}"
+            else
+                echo -e "${R}[!] Bundled extension package failed ZIP integrity check.${N}"
+                return 2
+            fi
+        fi
         if [[ ! -f "$panel/$NAME" ]]; then
             echo -e "${Y}[!] Package missing: $panel/$NAME${N}"
             echo -e "${D}Checking common upload folders (/root, /home, /tmp)...${N}"
