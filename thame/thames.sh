@@ -14,30 +14,43 @@ names=(
   "lememtheme" "slate" "kaelixprime" "m3dactyl"
 )
 
-pause(){ printf '\n  %sPress Enter to continue...%s' "$D" "$N"; read -r _ || true; }
+pause(){ printf '
+  %sPress Enter to continue...%s' "$D" "$N"; read -r _ || true; }
 panel_ready(){ [[ -f "$PANEL_DIR/artisan" ]]; }
 is_installed(){ [[ -d "$PANEL_DIR/storage/extensions/$1" ]]; }
 
 header(){
   clear
-  printf '\n  %s╔══════════════════════════════════════════════════════════════════════╗%s\n' "$R" "$N"
-  printf '  %s║%s  %s☠ L4XXYHOST%s  %s/  NIGHTFALL THEME VAULT%s                         %s║%s\n' "$R" "$N" "$M$B" "$N" "$D" "$N" "$R" "$N"
-  printf '  %s║%s  %sMADE BY L4XXY%s  %s•  PREMIUM PANEL THEMES%s                      %s║%s\n' "$R" "$N" "$Y$B" "$N" "$D" "$N" "$R" "$N"
-  printf '  %s╚══════════════════════════════════════════════════════════════════════╝%s\n' "$R" "$N"
-  printf '  %sHOST%s %s%s%s   %sUSER%s %s%s%s   %sTIME%s %s%s%s\n' "$D" "$N" "$W" "$(hostname)" "$N" "$D" "$N" "$W" "$(whoami)" "$N" "$D" "$N" "$W" "$(date +'%H:%M')" "$N"
+  printf '
+  %s╔══════════════════════════════════════════════════════════════════════╗%s
+' "$R" "$N"
+  printf '  %s║%s  %s☠ L4XXYHOST%s  %s/  NIGHTFALL THEME VAULT%s                         %s║%s
+' "$R" "$N" "$M$B" "$N" "$D" "$N" "$R" "$N"
+  printf '  %s║%s  %sMADE BY L4XXY%s  %s•  PREMIUM PANEL THEMES%s                      %s║%s
+' "$R" "$N" "$Y$B" "$N" "$D" "$N" "$R" "$N"
+  printf '  %s╚══════════════════════════════════════════════════════════════════════╝%s
+' "$R" "$N"
+  printf '  %sHOST%s %s%s%s   %sUSER%s %s%s%s   %sTIME%s %s%s%s
+' "$D" "$N" "$W" "$(hostname)" "$N" "$D" "$N" "$W" "$(whoami)" "$N" "$D" "$N" "$W" "$(date +'%H:%M')" "$N"
 }
 
 show_gallery(){
   header
-  printf '\n  %s╭─ AVAILABLE THEMES ───────────────────────────────────────────────────╮%s\n' "$P" "$N"
+  printf '
+  %s╭─ AVAILABLE THEMES ───────────────────────────────────────────────────╮%s
+' "$P" "$N"
   local i name status
   for ((i=0;i<${#names[@]};i++)); do
     name="${names[$i]}"
     if is_installed "$name"; then status="${G}● INSTALLED${N}"; else status="${D}○ AVAILABLE${N}"; fi
-    printf '  %s%02d%s  %-25s %b\n' "$C$B" "$((i+1))" "$N" "$name" "$status"
+    printf '  %s%02d%s  %-25s %b
+' "$C$B" "$((i+1))" "$N" "$name" "$status"
   done
-  printf '  %s╰────────────────────────────────────────────────────────────────────╯%s\n' "$P" "$N"
-  printf '\n  %s[i]%s Install  %s[r]%s Remove  %s[0]%s Back\n' "$Y$B" "$N" "$Y$B" "$N" "$R$B" "$N"
+  printf '  %s╰────────────────────────────────────────────────────────────────────╯%s
+' "$P" "$N"
+  printf '
+  %s[i]%s Install  %s[r]%s Remove  %s[0]%s Back
+' "$Y$B" "$N" "$Y$B" "$N" "$R$B" "$N"
 }
 
 while true; do
@@ -46,27 +59,36 @@ while true; do
   case "$choice" in
     0) exit 0 ;;
     i|I|r|R)
-      echo -e "\n  ${Y}Select a theme by its number first, then choose Install or Remove from its detail screen.${N}"
+      echo -e "
+  ${Y}Select a theme by its number first, then choose Install or Remove from its detail screen.${N}"
       pause
       ;;
     *)
       if [[ "$choice" =~ ^([1-9]|1[0-9]|20)$ ]]; then
         name="${names[$((choice-1))]}"
         header
-        printf '\n  %sSELECTED THEME%s  %s%s%s\n' "$D" "$N" "$W$B" "$name" "$N"
+        printf '
+  %sSELECTED THEME%s  %s%s%s
+' "$D" "$N" "$W$B" "$name" "$N"
         if is_installed "$name"; then
-          printf '  %sSTATUS%s  %s● INSTALLED%s\n' "$D" "$N" "$G" "$N"
+          printf '  %sSTATUS%s  %s● INSTALLED%s
+' "$D" "$N" "$G" "$N"
         else
-          printf '  %sSTATUS%s  %s○ NOT INSTALLED%s\n' "$D" "$N" "$Y" "$N"
+          printf '  %sSTATUS%s  %s○ NOT INSTALLED%s
+' "$D" "$N" "$Y" "$N"
         fi
-        printf '\n  %s[1]%s Install / Apply   %s[2]%s Uninstall   %s[0]%s Back\n' "$G$B" "$N" "$R$B" "$N" "$Y$B" "$N"
+        printf '
+  %s[1]%s Install / Apply   %s[2]%s Uninstall   %s[0]%s Back
+' "$G$B" "$N" "$R$B" "$N" "$Y$B" "$N"
         read -r -p "  Action: " action
         case "$action" in
           1)
             if ! panel_ready; then
-              echo -e "\n  ${R}Pterodactyl Panel not found at $PANEL_DIR. Install Panel first.${N}"
+              echo -e "
+  ${R}Pterodactyl Panel not found at $PANEL_DIR. Install Panel first.${N}"
             elif ! command -v blueprint >/dev/null 2>&1; then
-              echo -e "\n  ${Y}Blueprint CLI not found. Install Blueprint Framework first.${N}"
+              echo -e "
+  ${Y}Blueprint CLI not found. Install Blueprint Framework first.${N}"
             else
               package="$PANEL_DIR/$name.blueprint"
               bundled_package="$ROOT/thame/UI/$name.blueprint"
@@ -79,7 +101,8 @@ while true; do
                 fi
               fi
               if [[ ! -f "$package" ]]; then
-                echo -e "\n  ${Y}Package missing: $package${N}"
+                echo -e "
+  ${Y}Package missing: $package${N}"
                 echo -e "  ${D}Checking common upload folders (/root, /home, /tmp)...${N}"
                 found="$(find /root /home /tmp -type f -name "$name.blueprint" -print -quit 2>/dev/null || true)"
                 if [[ -n "$found" ]] && unzip -tq "$found" >/dev/null 2>&1; then
@@ -106,22 +129,32 @@ while true; do
             ;;
           2)
             if ! panel_ready; then
-              echo -e "\n  ${R}Pterodactyl Panel not found. Install Panel first.${N}"
+              echo -e "
+  ${R}Pterodactyl Panel not found. Install Panel first.${N}"
             elif ! command -v blueprint >/dev/null 2>&1; then
-              echo -e "\n  ${Y}Blueprint CLI not found.${N}"
+              echo -e "
+  ${Y}Blueprint CLI not found.${N}"
             elif ! is_installed "$name"; then
-              echo -e "\n  ${Y}Theme is not installed.${N}"
+              echo -e "
+  ${Y}Theme is not installed.${N}"
             else
               read -r -p "Type REMOVE to uninstall $name: " confirm
-              if [[ "$confirm" == "REMOVE" ]]; then\n                # The typed REMOVE confirmation is the safety gate; skip Blueprint\x27s duplicate prompt.\n                USER_CONFIRMED_REMOVAL=yes blueprint -remove "$name"\n              else\n                echo "Cancelled."\n              fi
+              if [[ "$confirm" == "REMOVE" ]]; then
+                # The typed REMOVE confirmation is the safety gate; skip Blueprint's duplicate prompt.
+                USER_CONFIRMED_REMOVAL=yes blueprint -remove "$name"
+              else
+                echo "Cancelled."
+              fi
             fi
             pause
             ;;
           0) ;;
-          *) echo -e "\n  ${R}Invalid action.${N}"; sleep 1 ;;
+          *) echo -e "
+  ${R}Invalid action.${N}"; sleep 1 ;;
         esac
       else
-        echo -e "\n  ${R}Invalid choice. Enter 1-20 or 0.${N}"
+        echo -e "
+  ${R}Invalid choice. Enter 1-20 or 0.${N}"
         sleep 1
       fi
       ;;
