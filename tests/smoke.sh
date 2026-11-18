@@ -86,7 +86,7 @@ else
       failed=1
     fi
   done
-  printf '[INFO] Validated %d theme packages and %d extension packages.\\n' "${#theme_packages[@]}" "${#extension_packages[@]}"
+  printf '[INFO] Validated %d theme packages and %d extension packages.\n' "${#theme_packages[@]}" "${#extension_packages[@]}"
 fi
 
 printf '\nChecked %d shell scripts.\n' "$checked"
