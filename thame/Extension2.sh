@@ -134,8 +134,8 @@ show_menu() {
 
     printf '\n  %sSYSTEM%s  %s%s%s   %sOPERATOR%s  %s%s%s   %sTIME%s  %s%s%s\n' "$D" "$N" "$BW" "$(hostname)" "$N" "$D" "$N" "$BC" "$(whoami)" "$N" "$D" "$N" "$BW" "$(date +'%H:%M')" "$N"
     printf '\n  %s╭%*s╮%s\n' "$D" "$inner" '' "$N" | sed "s/ /─/g"
-    printf '  %s│%s  %sLIBRARY%s  %s%02d%s%*s%s│%s  %sINSTALLED%s  %s%02d%s%*s%s│%s  %sSELECTED%s  %s%02d%s%*s%s│%s\n' \
-      "$D" "$N" "$BC" "$N" "$BW" "$total" "$N" 5 '' "$D" "$N" "$D" "$N" "$BG" "$N" "$BW" "$installed" "$N" 4 '' "$D" "$N" "$D" "$N" "$BY" "$N" "$BW" "${#selected_indices[@]}" "$N" 4 '' "$D" "$N"
+    printf '  %s│%s  %sLIBRARY %s%02d%s  %s│%s  %sINSTALLED %s%02d%s  %s│%s  %sSELECTED %s%02d%s  %s│%s\n' \
+      "$D" "$N" "$BC" "$BW" "$total" "$N" "$D" "$N" "$BG" "$BW" "$installed" "$N" "$D" "$N" "$BY" "$BW" "${#selected_indices[@]}" "$N" "$D" "$N"
     printf '  %s╰%*s╯%s\n' "$D" "$inner" '' "$N" | sed "s/ /─/g"
 
     printf '\n  %s01%s  %sAVAILABLE EXTENSIONS%s  %s/  SELECT PACKAGES BY ID%s\n' "$BR" "$N" "$BW" "$N" "$D" "$N"
