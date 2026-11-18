@@ -76,7 +76,7 @@ show_menu() {
     local total=${#names[@]} installed=0 i clean_name cols inner left right left_status right_status select_mark
     cols=$(tput cols 2>/dev/null || printf '80')
     [[ "$cols" =~ ^[0-9]+$ ]] || cols=80
-    (( cols < 50 )) && cols=50
+    (( cols < 52 )) && cols=52
     inner=$((cols - 4))
 
     for clean_name in "${names[@]}"; do
@@ -84,28 +84,28 @@ show_menu() {
         is_installed "$clean_name" && ((installed+=1))
     done
 
-    echo
-    printf "  ${M}╭"; printf "%*s" "$((inner - 2))" "" | tr " " "─"; printf "╮${N}\n"
-    printf "  ${M}│${N}  ${BM}${BW}L4XXY${N}  ${D}HOSTING CONTROL  /  EXTENSION STUDIO${N}%*s${M}│${N}\n" "$((inner - 42))" ""
-    printf "  ${M}│${N}  ${BY}MADE BY L4XXY${N}  ${D}•${N}  ${W}PREMIUM EXTENSION MARKETPLACE${N}%*s${M}│${N}\n" "$((inner - 47))" ""
-    printf "  ${M}╰"; printf "%*s" "$((inner - 2))" "" | tr " " "─"; printf "╯${N}\n"
+    # Dark thriller / cyber-security visual identity.
+    printf "\n  ${BR}╔"; printf '%*s' "$((inner - 2))" '' | tr ' ' '═'; printf "╗${N}\n"
+    printf "  ${BR}║${N}  ${BM}L4XXY${N}  ${BW}BLACKSITE${N}  ${D}//${N}  ${W}EXTENSION VAULT${N}%*s${BR}║${N}\n" "$((inner - 39))" ''
+    printf "  ${BR}║${N}  ${BY}MADE BY L4XXY${N}  ${D}•${N}  ${R}PREMIUM ADD-ON MARKETPLACE${N}%*s${BR}║${N}\n" "$((inner - 44))" ''
+    printf "  ${BR}╚"; printf '%*s' "$((inner - 2))" '' | tr ' ' '═'; printf "╝${N}\n"
 
-    printf "  ${D}HOST${N} ${W}%-14.14s${N}  ${D}USER${N} ${W}%-8.8s${N}  ${D}TIME${N} ${W}%s${N}\n" "$(hostname)" "$(whoami)" "$(date +'%H:%M')"
-    printf "\n  ${BC}ADD-ONS${N} ${BW}%s${N}    ${BG}INSTALLED${N} ${BG}%s${N}    ${BY}SELECTED${N} ${BM}%s${N}\n" "$total" "$installed" "${#selected_indices[@]}"
-    printf "  ${M}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
-    printf "  ${BM}✦  BROWSE EXTENSIONS${N}  ${D}Select by number; multiple numbers are supported${N}\n\n"
+    printf "  ${D}NODE${N} ${W}%-13.13s${N}  ${D}USER${N} ${W}%-8.8s${N}  ${D}LOCAL TIME${N} ${W}%s${N}\n" "$(hostname)" "$(whoami)" "$(date +'%H:%M')"
+    printf "\n  ${BR}▰${N} ${BW}CATALOGUE${N} ${BC}%02d${N}    ${BG}ACTIVE${N} ${BG}%02d${N}    ${BY}QUEUED${N} ${BM}%02d${N}\n" "$total" "$installed" "${#selected_indices[@]}"
+    printf "  ${R}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
+    printf "  ${BM}◈  VAULT CONTENTS${N}  ${D} /  SELECT ADD-ONS BY ID${N}\n\n"
 
     if (( cols >= 96 )); then
         for ((i=0; i<total; i+=2)); do
             left="${names[$i]%.blueprint}"
             is_installed "$left" && left_status="${BG}●${N}" || left_status="${R}○${N}"
             is_selected "$i" && select_mark="${BY}◆${N}" || select_mark="${D}◇${N}"
-            printf "  %b ${BC}%02d${N}  %-20.20s %b" "$select_mark" "$((i+1))" "$left" "$left_status"
+            printf "  %b ${BC}%02d${N}  %-18.18s %b" "$select_mark" "$((i+1))" "$left" "$left_status"
             if (( i+1 < total )); then
                 right="${names[$((i+1))]%.blueprint}"
                 is_installed "$right" && right_status="${BG}●${N}" || right_status="${R}○${N}"
                 is_selected "$((i+1))" && select_mark="${BY}◆${N}" || select_mark="${D}◇${N}"
-                printf "    %b ${BC}%02d${N}  %-20.20s %b" "$select_mark" "$((i+2))" "$right" "$right_status"
+                printf "   %b ${BC}%02d${N}  %-18.18s %b" "$select_mark" "$((i+2))" "$right" "$right_status"
             fi
             printf "\n"
         done
@@ -114,14 +114,14 @@ show_menu() {
             left="${names[$i]%.blueprint}"
             is_installed "$left" && left_status="${BG}●${N}" || left_status="${R}○${N}"
             is_selected "$i" && select_mark="${BY}◆${N}" || select_mark="${D}◇${N}"
-            printf "  %b ${BC}%02d${N}  %-24.24s %b\n" "$select_mark" "$((i+1))" "$left" "$left_status"
+            printf "  %b ${BC}%02d${N}  %-26.26s %b\n" "$select_mark" "$((i+1))" "$left" "$left_status"
         done
     fi
 
-    printf "\n  ${M}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
+    printf "\n  ${R}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${N}\n"
     printf "  ${BG}●${N} Installed   ${R}○${N} Available   ${BY}◆${N} Selected\n"
-    printf "  ${Y}Install / Remove are locked pending package security review.${N}\n"
-    printf "\n  ${C}[i]${N} Install   ${C}[r]${N} Remove   ${C}[a]${N} Select all   ${C}[c]${N} Clear   ${R}[0]${N} Back\n"
+    printf "  ${Y}INSTALL / REMOVE DISABLED — PACKAGE SECURITY REVIEW PENDING${N}\n"
+    printf "\n  ${BC}[i]${N} Install   ${BC}[r]${N} Remove   ${BC}[a]${N} Select all   ${BC}[c]${N} Clear   ${BR}[0]${N} Back\n"
 }
 
 # 🔁 MAIN LOOP
