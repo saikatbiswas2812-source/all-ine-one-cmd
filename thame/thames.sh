@@ -112,13 +112,8 @@ while true; do
             elif ! is_installed "$name"; then
               echo -e "\n  ${Y}Theme is not installed.${N}"
             else
-              read -r -p "Type REMOVE to uninstall $name: " confirm
-              if [[ "$confirm" == "REMOVE" ]]; then
-                # The typed REMOVE confirmation is the safety gate; skip Blueprint's duplicate prompt.
-                USER_CONFIRMED_REMOVAL=yes blueprint -remove "$name"
-              else
-                echo "Cancelled."
-              fi
+              # Direct removal: skip both the gallery and Blueprint confirmation prompts.
+              USER_CONFIRMED_REMOVAL=yes blueprint -remove "$name"
             fi
             pause
             ;;
