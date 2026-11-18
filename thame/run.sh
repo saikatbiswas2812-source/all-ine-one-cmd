@@ -108,16 +108,15 @@ while true; do
                 case $bp in
                     1)
                         if [ "$installed" = false ]; then
-                            echo -e "${CYAN}Installing...${RESET}"
-                            rm -f /etc/apt/keyrings/nodesource.gpg 2>/dev/null
-                            yes | bash <(curl -s https://raw.githubusercontent.com/nobita329/Nobita-Cloud/refs/heads/main/thame/install.sh)
+                            echo -e "${YELLOW}Blueprint installation is temporarily disabled.${RESET}"
+                            echo -e "${MUTED}The upstream installer has not completed a security and checksum review.${RESET}"
                         else
                             yes | blueprint -rerun-install
                         fi
                         pause
                         ;;
                     2)
-                        yes | blueprint -upgrade
+                        echo -e "${YELLOW}Blueprint updates are temporarily disabled pending upstream package verification.${RESET}"
                         pause
                         ;;
                     3)
@@ -129,50 +128,8 @@ while true; do
                         pause
                         ;;
                     5)
-                        echo -e "${RED}Uninstalling Blueprint Framework + Extensions...${RESET}"
-                        path=$(which blueprint 2>/dev/null)
-
-                        if [ -n "$path" ]; then
-                            # Stop services
-                            systemctl stop pterodactyl-queue 2>/dev/null || true
-
-                            # Remove blueprint binary
-                            rm -f "$path"
-
-                            # Remove all blueprint data (framework + extensions)
-                            rm -rf ~/.blueprint
-                            rm -rf ~/.config/blueprint
-                            rm -rf /var/www/pterodactyl/.blueprint
-
-                            # Remove extensions from pterodactyl
-                            rm -rf /var/www/pterodactyl/app/BlueprintFramework
-                            rm -rf /var/www/pterodactyl/app/BlueprintFramework/*
-                            rm -rf /var/www/pterodactyl/extensions
-                            rm -rf /var/www/pterodactyl/extensions/*
-
-                            # Purge blueprint config and service files
-                            rm -rf /etc/blueprint
-                            rm -f /etc/systemd/system/blueprint* 2>/dev/null
-                            rm -f /etc/systemd/system/pteroq.service 2>/dev/null
-
-                            # Restore any backup views if they exist
-                            if [ -f /var/www/pterodactyl/blueprint.backup.tar.gz ]; then
-                                echo -e "${YELLOW}Restoring backup...${RESET}"
-                                rm -f /var/www/pterodactyl/blueprint.backup.tar.gz
-                            fi
-
-                            # Final cleanup of extension database entries
-                            if command -v mysql >/dev/null 2>&1; then
-                                echo -e "${YELLOW}Cleaning database...${RESET}"
-                                mysql -e "DROP TABLE IF EXISTS pterodactyl.blueprint_extensions;" 2>/dev/null || true
-                            fi
-
-                            systemctl daemon-reload 2>/dev/null || true
-
-                            echo -e "${GREEN}Fully uninstalled (Framework + Extensions) ✔${RESET}"
-                        else
-                            echo -e "${RED}Not installed ❌${RESET}"
-                        fi
+                        echo -e "${RED}Blueprint uninstall is disabled to protect panel files, extensions, and database data.${RESET}"
+                        echo -e "${MUTED}No files, services, or databases were changed.${RESET}"
                         pause
                         ;;
                     0)
