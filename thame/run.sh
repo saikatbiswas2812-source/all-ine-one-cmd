@@ -107,12 +107,8 @@ while true; do
 
                 case $bp in
                     1)
-                        if [ "$installed" = false ]; then
-                            echo -e "${YELLOW}Blueprint installation is temporarily disabled.${RESET}"
-                            echo -e "${MUTED}The upstream installer has not completed a security and checksum review.${RESET}"
-                        else
-                            yes | blueprint -rerun-install
-                        fi
+                        echo -e "${YELLOW}Blueprint install/reinstall is temporarily disabled pending package verification.${RESET}"
+                        echo -e "${MUTED}No remote installer will be executed from this menu.${RESET}"
                         pause
                         ;;
                     2)
