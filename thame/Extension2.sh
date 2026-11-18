@@ -80,34 +80,51 @@ get_title() { printf '✦ L4XXYHOST  /  EXTENSION MARKETPLACE'; }
 # ==========================================
 show_menu() {
     clear
-    echo -e "${C}╭──────────────────────────────────────────────────────────────────────────────╮${N}"
-    echo -e "${C}│                                                                              │${N}"
-    printf " ${C}│${N}   ${BM}%-74s${C}│${N}\n" "$(get_title)"
-    printf " ${C}│${N}   ${BY}%-74s${C}│${N}\n" "MADE BY L4XXY  •  PREMIUM BLUEPRINT ADD-ONS"
-    echo -e "${C}│                                                                              │${N}"
-    echo -e "${C}╰──────────────────────────────────────────────────────────────────────────────╯${N}"
-    echo -e "  ${D}HOST${N} ${W}$(hostname)${N}   ${D}USER${N} ${W}$(whoami)${N}   ${D}TIME${N} ${W}$(date +'%H:%M')${N}"
-    echo -e "\n  ${M}╭────────────────────────────── ✦ ──────────────────────────────────────────╮${N}"
-    echo -e "  ${M}│${N}  ${BM}SELECT EXTENSIONS TO MANAGE${N}                                             ${M}│${N}"
-    echo -e "  ${M}╰──────────────────────────────────────────────────────────────────────────╯${N}\n"
-
-    local count=0 i num clean_name status select_mark display_name
-    for i in "${!names[@]}"; do
-        num=$((i+1))
-        clean_name="${names[$i]%.blueprint}"
-        is_installed "$clean_name" && status="${BG}●${N}" || status="${R}○${N}"
-        is_selected "$i" && select_mark="${BY}[✓]${N}" || select_mark="   "
-        display_name="${clean_name:0:23}"
-        printf "  %b ${B}%2d${N} %-23s %b  " "$select_mark" "$num" "$display_name" "$status"
-        ((count+=1))
-        [[ $((count % 2)) -eq 0 ]] && echo ""
+    local total=${#names[@]} installed=0 count=0 i num clean_name status select_mark left right left_status right_status
+    for clean_name in "${names[@]}"; do
+        clean_name="${clean_name%.blueprint}"
+        is_installed "$clean_name" && ((installed+=1))
     done
-    [[ $((count % 2)) -ne 0 ]] && echo ""
 
-    echo -e "\n  ${C}╭──────────────────────────────────────────────────────────────────────────╮${N}"
-    echo -e "  ${C}│${N}  ${W}SELECTED:${N} ${BY}${#selected_indices[@]}${N} items"
-    echo -e "  ${C}│${N}  ${BG}[i]${N} Install   ${BR}[r]${N} Remove   ${BM}[a]${N} Select All   ${BC}[c]${N} Clear   ${R}[0]${N} Back"
-    echo -e "  ${C}╰──────────────────────────────────────────────────────────────────────────╯${N}"
+    echo -e "\n  ${M}╭──────────────────────────────────────────────────────────────────────────────╮${N}"
+    echo -e "  ${M}│                                                                              │${N}"
+    echo -e "  ${M}│${N}   ${BM}██╗  ██╗  ██████╗  ██╗  ██╗  ██╗   ██╗  ██╗   ██╗  ██████╗  ███████╗${N}   ${M}│${N}"
+    echo -e "  ${M}│${N}   ${BM}██║  ██║ ██╔═══██╗ ╚██╗██╔╝  ╚██╗ ██╔╝  ╚██╗ ██╔╝ ██╔═══██╗ ██╔════╝${N}   ${M}│${N}"
+    echo -e "  ${M}│${N}   ${BM}███████║ ██║   ██║  ╚███╔╝    ╚████╔╝    ╚████╔╝  ██║   ██║ ███████╗${N}   ${M}│${N}"
+    echo -e "  ${M}│${N}   ${BM}██╔══██║ ██║   ██║  ██╔██╗     ╚██╔╝      ╚██╔╝   ██║   ██║ ╚════██║${N}   ${M}│${N}"
+    echo -e "  ${M}│${N}   ${BM}██║  ██║ ╚██████╔╝ ██╔╝ ██╗     ██║        ██║    ╚██████╔╝ ███████║${N}   ${M}│${N}"
+    echo -e "  ${M}│${N}   ${BM}╚═╝  ╚═╝  ╚═════╝  ╚═╝  ╚═╝     ╚═╝        ╚═╝     ╚═════╝  ╚══════╝${N}   ${M}│${N}"
+    echo -e "  ${M}│                                                                              │${N}"
+    printf "  ${M}│${N}   ${BY}%-74s${M}│${N}\n" "MADE BY L4XXY  •  PREMIUM EXTENSION MARKETPLACE"
+    echo -e "  ${M}╰──────────────────────────────────────────────────────────────────────────────╯${N}"
+    echo -e "   ${D}HOST${N} ${W}$(hostname)${N}   ${D}USER${N} ${W}$(whoami)${N}   ${D}TIME${N} ${W}$(date +'%H:%M')${N}"
+    echo -e "\n  ${C}╭───────────────────────╮  ╭───────────────────────╮  ╭───────────────────────╮${N}"
+    printf "  ${C}│${N}  ${BC}TOTAL ADD-ONS${N}         ${C}│  │${N}  ${BG}INSTALLED${N}            ${C}│  │${N}  ${BY}SELECTED${N}             ${C}│\n"
+    printf "  ${C}│${N}      ${BW}%-3s${N}                ${C}│  │      ${BG}%-3s${N}               ${C}│  │      ${BM}%-3s${N}                ${C}│\n" "$total" "$installed" "${#selected_indices[@]}"
+    echo -e "  ${C}╰───────────────────────╯  ╰───────────────────────╯  ╰───────────────────────╯${N}"
+    echo -e "\n  ${M}╭──────────────────────────────────────────────────────────────────────────────╮${N}"
+    echo -e "  ${M}│${N}  ${BM}✦  BROWSE EXTENSIONS${N}    ${D}Choose item numbers to select or deselect add-ons${N}  ${M}│${N}"
+    echo -e "  ${M}╰──────────────────────────────────────────────────────────────────────────────╯\n"
+
+    for ((i=0; i<total; i+=2)); do
+        left="${names[$i]%.blueprint}"
+        is_installed "$left" && left_status="${BG}●${N}" || left_status="${R}○${N}"
+        is_selected "$i" && select_mark="${BY}◆${N}" || select_mark="${D}◇${N}"
+        printf "   %b ${BC}%02d${N}  %-22.22s %b" "$select_mark" "$((i+1))" "$left" "$left_status"
+        if (( i+1 < total )); then
+            right="${names[$((i+1))]%.blueprint}"
+            is_installed "$right" && right_status="${BG}●${N}" || right_status="${R}○${N}"
+            is_selected "$((i+1))" && select_mark="${BY}◆${N}" || select_mark="${D}◇${N}"
+            printf "     %b ${BC}%02d${N}  %-22.22s %b" "$select_mark" "$((i+2))" "$right" "$right_status"
+        fi
+        printf "\n"
+    done
+
+    echo -e "\n  ${D}  ────────────────────────────────────────────────────────────────────────────${N}"
+    echo -e "   ${BG}●${N} Installed   ${R}○${N} Available   ${BY}◆${N} Selected"
+    echo -e "\n  ${C}╭──────────────────────────────────────────────────────────────────────────────╮${N}"
+    echo -e "  ${C}│${N}  ${BG}[i]${N} INSTALL   ${BR}[r]${N} REMOVE   ${BM}[a]${N} SELECT ALL   ${BC}[c]${N} CLEAR   ${R}[0]${N} BACK"
+    echo -e "  ${C}╰──────────────────────────────────────────────────────────────────────────────╯${N}"
 }
 
 # 🔁 MAIN LOOP
