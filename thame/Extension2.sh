@@ -85,10 +85,10 @@ show_menu() {
     done
 
     echo
-    printf "  ${M}╭%*s╮${N}\n" "$((inner - 2))" "" | sed "s/ /─/g"
+    printf "  ${M}╭"; printf "%*s" "$((inner - 2))" "" | tr " " "─"; printf "╮${N}\n"
     printf "  ${M}│${N}  ${BM}${BW}L4XXY${N}  ${D}HOSTING CONTROL  /  EXTENSION STUDIO${N}%*s${M}│${N}\n" "$((inner - 42))" ""
     printf "  ${M}│${N}  ${BY}MADE BY L4XXY${N}  ${D}•${N}  ${W}PREMIUM EXTENSION MARKETPLACE${N}%*s${M}│${N}\n" "$((inner - 47))" ""
-    printf "  ${M}╰%*s╯${N}\n" "$((inner - 2))" "" | sed "s/ /─/g"
+    printf "  ${M}╰"; printf "%*s" "$((inner - 2))" "" | tr " " "─"; printf "╯${N}\n"
 
     printf "  ${D}HOST${N} ${W}%-14.14s${N}  ${D}USER${N} ${W}%-8.8s${N}  ${D}TIME${N} ${W}%s${N}\n" "$(hostname)" "$(whoami)" "$(date +'%H:%M')"
     printf "\n  ${BC}ADD-ONS${N} ${BW}%s${N}    ${BG}INSTALLED${N} ${BG}%s${N}    ${BY}SELECTED${N} ${BM}%s${N}\n" "$total" "$installed" "${#selected_indices[@]}"
