@@ -1,174 +1,165 @@
 #!/usr/bin/env bash
 set -u
 
-# ==========================================
-# 🔐 BASIC PROTECTION
-# ==========================================
-# ==========================================
-# 🎨 COLORS
-# ==========================================
-R="\e[31m"; G="\e[32m"; Y="\e[33m"
-B="\e[34m"; M="\e[35m"; C="\e[36m"
-W="\e[97m"; N="\e[0m"; D="\e[90m"
-BR="\e[1;31m"; BG="\e[1;32m"; BY="\e[1;33m"
-BM="\e[1;35m"; BC="\e[1;36m"; BW="\e[1;97m"
+# L4xxyHost Extension Marketplace — responsive, paginated, read-only catalogue.
+R=$'\033[31m'; G=$'\033[32m'; Y=$'\033[33m'; C=$'\033[36m'
+M=$'\033[35m'; W=$'\033[97m'; D=$'\033[90m'; N=$'\033[0m'
+BR=$'\033[1;31m'; BG=$'\033[1;32m'; BY=$'\033[1;33m'
+BM=$'\033[1;35m'; BC=$'\033[1;36m'; BW=$'\033[1;97m'
 
-URL="https://github.com/nobita329/Nobita-Cloud/raw/refs/heads/main/thame/Extension"
 selected_indices=()
+page=0
+page_size=20
+name_width=22
 
-trap 'echo -e "\n${R}[!] Force exit detected.${N}"; exit 1' SIGINT
-
-# ==========================================
-# 🧠 BLUEPRINT LIST
-# ==========================================
 names=(
-"adminauditlogs.blueprint" "huxregister.blueprint" "loader.blueprint" 
+"adminauditlogs.blueprint" "huxregister.blueprint" "loader.blueprint"
 "lyrdyannounce.blueprint" "mclogs.blueprint" "mcplugins.blueprint"
-"mctools.blueprint" "minecraftplayermanager.blueprint" "playerlisting.blueprint" 
+"mctools.blueprint" "minecraftplayermanager.blueprint" "playerlisting.blueprint"
 "resourcealerts.blueprint" "resourcemanager.blueprint" "serverbackgrounds.blueprint"
-"serversplitter.blueprint" "simplefavicons.blueprint" "snowflakes.blueprint" 
+"serversplitter.blueprint" "simplefavicons.blueprint" "snowflakes.blueprint"
 "sociallogin.blueprint" "startupchanger.blueprint" "subdomains.blueprint"
-"tawkto.blueprint" "versionchanger.blueprint" "pteromonaco.blueprint" 
+"tawkto.blueprint" "versionchanger.blueprint" "pteromonaco.blueprint"
 "urldownloader.blueprint" "consolelogs.blueprint" "laravellogs.blueprint"
-"vanillatweaks.blueprint" "modrinthbrowser.blueprint" "nopagination.blueprint" 
+"vanillatweaks.blueprint" "modrinthbrowser.blueprint" "nopagination.blueprint"
 "activitypurges.blueprint" "redirect.blueprint" "simplefooters.blueprint"
-"paneladdressoverride.blueprint" "shownodeids.blueprint" "votifiertester.blueprint" 
+"paneladdressoverride.blueprint" "shownodeids.blueprint" "votifiertester.blueprint"
 "sidebar.blueprint" "translations.blueprint" "monacoeditor.blueprint"
-"minecraftpluginmanager.blueprint" "subdomainmanager.blueprint" "serverimporter.blueprint" 
-"pstatistics.blueprint" "pullfiles.blueprint" "serverpropsmanager.blueprint" 
+"minecraftpluginmanager.blueprint" "subdomainmanager.blueprint" "serverimporter.blueprint"
+"pstatistics.blueprint" "pullfiles.blueprint" "serverpropsmanager.blueprint"
 "motdmaker.blueprint" "servericonimporter.blueprint" "sagaautosuspension.blueprint"
-"sagaminecraftmodpackinstaller.blueprint" "blueannoucements.blueprint" "trashbin.blueprint" 
-"eggchanger.blueprint" "mysqlautobackup.blueprint" "configeditor.blueprint" "customserversort.blueprint" "databaseimportexport.blueprint"
-"minecraftmodmanager.blueprint" "serverid.blueprint" "stats.blueprint" "vminfo.blueprint" "customcss.blueprint" "autobackups.blueprint" "node.blueprint" "mcp.blueprint"
-"mcplayer.blueprint" "pterodactylramburst.blueprint"
-"pterodactylpanelban.blueprint"
-"pterodactylcpuburst.blueprint"
+"sagaminecraftmodpackinstaller.blueprint" "blueannoucements.blueprint" "trashbin.blueprint"
+"eggchanger.blueprint" "mysqlautobackup.blueprint" "configeditor.blueprint"
+"customserversort.blueprint" "databaseimportexport.blueprint" "minecraftmodmanager.blueprint"
+"serverid.blueprint" "stats.blueprint" "vminfo.blueprint" "customcss.blueprint"
+"autobackups.blueprint" "node.blueprint" "mcp.blueprint" "mcplayer.blueprint"
+"pterodactylramburst.blueprint" "pterodactylpanelban.blueprint" "pterodactylcpuburst.blueprint"
 )
 
-# ==========================================
-# 🔍 HELPERS
-# ==========================================
+term_cols() {
+  local cols
+  cols=$(tput cols 2>/dev/null || printf '100')
+  [[ "$cols" =~ ^[0-9]+$ ]] || cols=100
+  (( cols < 60 )) && cols=60
+  (( cols > 110 )) && cols=110
+  printf '%s' "$cols"
+}
+
 is_installed() {
-    [[ -d "/var/www/pterodactyl/storage/extensions/${1%.blueprint}" ]] && return 0 || return 1
+  [[ -d "/var/www/pterodactyl/storage/extensions/${1%.blueprint}" ]]
 }
 
 is_selected() {
-    local index=$1
-    [[ " ${selected_indices[*]} " =~ " $index " ]] && return 0 || return 1
+  local target=$1 item
+  for item in " ${selected_indices[*]} "; do
+    [[ "$item" -eq "$target" ]] && return 0
+  done
+  return 1
+}
+
+toggle_selected() {
+  local target=$1 item
+  if is_selected "$target"; then
+    local next=()
+    for item in " ${selected_indices[@]} "; do
+      [[ "$item" -eq "$target" ]] || next+=("$item")
+    done
+    selected_indices=(" ${next[@]} ")
+  else
+    selected_indices+=("$target")
+  fi
 }
 
 run_blueprint() {
-    local NAME="$1"
-    local ACTION="$2"
-    echo -e "${Y}[!] ${ACTION^} is temporarily disabled for ${NAME%.blueprint}.${N}"
-    echo -e "${D}Third-party Blueprint packages have not yet passed source, checksum, and compatibility review.${N}"
-    echo -e "${G}[i] No files, panel data, or database records were changed.${N}"
-    return 2
+  local name=$1 action=$2
+  printf '\n%b[LOCKED]%b %s is disabled until its upstream source, checksum and panel compatibility are verified.\n' "$Y" "$N" " ${name%.blueprint}"
+  printf '%bNo panel files, configuration or database records were changed.%b\n' "$D" "$N"
+  return 2
 }
 
-get_title() { printf '✦ L4XXYHOST  /  EXTENSION MARKETPLACE'; }
+draw_header() {
+  local width=$1 inner=$((width - 4))
+  local title="L4XXYHOST  /  EXTENSION MARKETPLACE"
+  local subtitle="MADE BY L4XXY  •  BLUEPRINT ADD-ON CATALOGUE"
+  printf '\n  %b+%*s+%b\n' "$M" "$inner" '' "$N"
+  printf '  %b|%b %b%-*s%b %b|\n' "$M" "$N" "$BM" "$((inner - 2))" "$title" "$N" "$M"
+  printf '  %b|%b %b%-*s%b %b|\n' "$M" "$N" "$BY" "$((inner - 2))" "$subtitle" "$N" "$M"
+  printf '  %b+%*s+%b\n' "$M" "$inner" '' "$N"
+}
 
-# ==========================================
-# 📋 MENU
-# ==========================================
+show_item() {
+  local index=$1 number=$((index + 1)) name=" ${names[$index]%.blueprint}" mark status
+  if is_selected "$index"; then mark=" ${BY}◆${N}"; else mark=" ${D}◇${N}"; fi
+  if is_installed "$name"; then status=" ${BG}●${N}"; else status=" ${R}○${N}"; fi
+  printf '  %b %b%02d%b %-*.*s %b\n' "$mark" "$BC" "$number" "$N" "$name_width" "$name_width" "$name" "$status"
+}
+
 show_menu() {
-    clear
-    local total=${#names[@]} installed=0 count=0 i num clean_name status select_mark left right left_status right_status
-    for clean_name in "${names[@]}"; do
-        clean_name="${clean_name%.blueprint}"
-        is_installed "$clean_name" && ((installed+=1))
-    done
+  local width inner total installed=0 start end i pages left_count li ri
+  width=$(term_cols); inner=$((width - 4)); total=${#names[@]}
+  for ((i=0; i<total; i++)); do
+    is_installed " ${names[$i]}" && ((installed+=1))
+  done
+  pages=$(((total + page_size - 1) / page_size))
+  (( page >= pages )) && page=$((pages - 1))
+  start=$((page * page_size)); end=$((start + page_size))
+  (( end > total )) && end=$total
+  name_width=$(((inner - 24) / 2))
+  (( name_width < 12 )) && name_width=12
+  (( name_width > 27 )) && name_width=27
 
-    echo -e "\n  ${M}╭──────────────────────────────────────────────────────────────────────────────╮${N}"
-    echo -e "  ${M}│                                                                              │${N}"
-    echo -e "  ${M}│${N}   ${BM}██╗  ██╗  ██████╗  ██╗  ██╗  ██╗   ██╗  ██╗   ██╗  ██████╗  ███████╗${N}   ${M}│${N}"
-    echo -e "  ${M}│${N}   ${BM}██║  ██║ ██╔═══██╗ ╚██╗██╔╝  ╚██╗ ██╔╝  ╚██╗ ██╔╝ ██╔═══██╗ ██╔════╝${N}   ${M}│${N}"
-    echo -e "  ${M}│${N}   ${BM}███████║ ██║   ██║  ╚███╔╝    ╚████╔╝    ╚████╔╝  ██║   ██║ ███████╗${N}   ${M}│${N}"
-    echo -e "  ${M}│${N}   ${BM}██╔══██║ ██║   ██║  ██╔██╗     ╚██╔╝      ╚██╔╝   ██║   ██║ ╚════██║${N}   ${M}│${N}"
-    echo -e "  ${M}│${N}   ${BM}██║  ██║ ╚██████╔╝ ██╔╝ ██╗     ██║        ██║    ╚██████╔╝ ███████║${N}   ${M}│${N}"
-    echo -e "  ${M}│${N}   ${BM}╚═╝  ╚═╝  ╚═════╝  ╚═╝  ╚═╝     ╚═╝        ╚═╝     ╚═════╝  ╚══════╝${N}   ${M}│${N}"
-    echo -e "  ${M}│                                                                              │${N}"
-    printf "  ${M}│${N}   ${BY}%-74s${M}│${N}\n" "MADE BY L4XXY  •  PREMIUM EXTENSION MARKETPLACE"
-    echo -e "  ${M}╰──────────────────────────────────────────────────────────────────────────────╯${N}"
-    echo -e "   ${D}HOST${N} ${W}$(hostname)${N}   ${D}USER${N} ${W}$(whoami)${N}   ${D}TIME${N} ${W}$(date +'%H:%M')${N}"
-    echo -e "\n  ${C}╭───────────────────────╮  ╭───────────────────────╮  ╭───────────────────────╮${N}"
-    printf "  ${C}│${N}  ${BC}TOTAL ADD-ONS${N}         ${C}│  │${N}  ${BG}INSTALLED${N}            ${C}│  │${N}  ${BY}SELECTED${N}             ${C}│\n"
-    printf "  ${C}│${N}      ${BW}%-3s${N}                ${C}│  │      ${BG}%-3s${N}               ${C}│  │      ${BM}%-3s${N}                ${C}│\n" "$total" "$installed" "${#selected_indices[@]}"
-    echo -e "  ${C}╰───────────────────────╯  ╰───────────────────────╯  ╰───────────────────────╯${N}"
-    echo -e "\n  ${M}╭──────────────────────────────────────────────────────────────────────────────╮${N}"
-    echo -e "  ${M}│${N}  ${BM}✦  BROWSE EXTENSIONS${N}    ${D}Choose item numbers to select or deselect add-ons${N}  ${M}│${N}"
-    echo -e "  ${M}╰──────────────────────────────────────────────────────────────────────────────╯\n"
+  clear
+  draw_header "$width"
+  printf '  %bHOST%b %-18.18s  %bUSER%b %-10.10s  %bTIME%b %s\n' "$D" "$N" "$(hostname)" "$D" "$N" "$(whoami)" "$D" "$N" "$(date +'%H:%M')"
+  printf '\n  %bTOTAL%b %s    %bINSTALLED%b %s    %bSELECTED%b %s\n' "$BC" "$N" "$total" "$BG" "$N" "$installed" "$BY" "$N" " ${#selected_indices[@]}"
+  printf '  %b+%*s+%b\n' "$C" "$inner" '' "$N"
+  printf '  %b|%b %bBROWSE EXTENSIONS%b  %bPage %d/%d — showing %d-%d of %d%b\n' "$C" "$N" "$BM" "$N" "$D" "$((page+1))" "$pages" "$((start+1))" "$end" "$total" "$N"
+  printf '  %b+%*s+%b\n' "$C" "$inner" '' "$N"
+  printf '\n'
 
-    for ((i=0; i<total; i+=2)); do
-        left="${names[$i]%.blueprint}"
-        is_installed "$left" && left_status="${BG}●${N}" || left_status="${R}○${N}"
-        is_selected "$i" && select_mark="${BY}◆${N}" || select_mark="${D}◇${N}"
-        printf "   %b ${BC}%02d${N}  %-22.22s %b" "$select_mark" "$((i+1))" "$left" "$left_status"
-        if (( i+1 < total )); then
-            right="${names[$((i+1))]%.blueprint}"
-            is_installed "$right" && right_status="${BG}●${N}" || right_status="${R}○${N}"
-            is_selected "$((i+1))" && select_mark="${BY}◆${N}" || select_mark="${D}◇${N}"
-            printf "     %b ${BC}%02d${N}  %-22.22s %b" "$select_mark" "$((i+2))" "$right" "$right_status"
-        fi
-        printf "\n"
-    done
+  left_count=$(((end - start + 1) / 2))
+  for ((i=0; i<left_count; i++)); do
+    li=$((start + i)); ri=$((start + left_count + i))
+    (( li < end )) && show_item "$li"
+    (( ri < end )) && show_item "$ri"
+  done
 
-    echo -e "\n  ${D}  ────────────────────────────────────────────────────────────────────────────${N}"
-    echo -e "   ${BG}●${N} Installed   ${R}○${N} Available   ${BY}◆${N} Selected   ${Y}Install/Remove locked pending audit${N}"
-    echo -e "\n  ${C}╭──────────────────────────────────────────────────────────────────────────────╮${N}"
-    echo -e "  ${C}│${N}  ${BG}[i]${N} INSTALL   ${BR}[r]${N} REMOVE   ${BM}[a]${N} SELECT ALL   ${BC}[c]${N} CLEAR   ${R}[0]${N} BACK"
-    echo -e "  ${C}╰──────────────────────────────────────────────────────────────────────────────╯${N}"
+  printf '\n  %b●%b Installed   %b○%b Not detected   %b◆%b Selected   %bInstall/remove are locked pending audit.%b\n' "$G" "$N" "$R" "$N" "$Y" "$N" "$D" "$N"
+  printf '\n  %b[n]%b Next page  %b[p]%b Previous  %b[a]%b Select page  %b[c]%b Clear selection\n' "$BC" "$N" "$BC" "$N" "$BC" "$N" "$BC" "$N"
+  printf '  %b[i]%b Install locked  %b[r]%b Remove locked  %b[0]%b Back to Theme Studio\n\n' "$BG" "$N" "$BR" "$N" "$R" "$N"
 }
 
-# 🔁 MAIN LOOP
-# ==========================================
 while true; do
-    show_menu
-    read -r -p "$(echo -e "  ${BC}L4XXYHOST ${BM}›${N} Select IDs or action: ")" choice
-
-    case $choice in
-        0) echo -e "\n${M} Returning to Theme Studio...${N}"; exit 0 ;;
-        c|C) selected_indices=() ;;
-        a|A) 
-            selected_indices=()
-            for i in "${!names[@]}"; do
-                selected_indices+=("$i")
-            done
-            ;;
-        i|I|r|R)
-            if [[ ${#selected_indices[@]} -eq 0 ]]; then
-                echo -e "${R}Nothing selected!${N}"; sleep 1; continue
-            fi
-            action_type="install"
-            [[ "$choice" =~ [rR] ]] && action_type="remove"
-            
-            for idx in "${selected_indices[@]}"; do
-                run_blueprint "${names[$idx]}" "$action_type"
-            done
-            selected_indices=()
-            echo ""
-            read -p "Done. Press Enter to return..."
-            ;;
-        *)
-            # Multi-select toggle logic (supports space-separated numbers like "1 4 12")
-            for val in $choice; do
-                if [[ "$val" =~ ^[0-9]+$ ]] && (( val >= 1 && val <= ${#names[@]} )); then
-                    idx=$((val-1))
-                    if is_selected "$idx"; then
-                        # Remove from array
-                        for i in "${!selected_indices[@]}"; do
-                            if [[ ${selected_indices[i]} -eq $idx ]]; then
-                                unset 'selected_indices[i]'
-                            fi
-                        done
-                        selected_indices=("${selected_indices[@]}") # Re-index array
-                    else
-                        selected_indices+=("$idx")
-                    fi
-                else
-                    echo -e "${R}Invalid option: $val${N}"; sleep 0.5
-                fi
-            done
-            ;;
-    esac
+  show_menu
+  read -r -p "$(printf '  %bL4XXYHOST ›%b ' "$BC" "$N")" choice || choice=0
+  case "$choice" in
+    0) printf '\n%bReturning to Theme Studio...%b\n' "$M" "$N"; exit 0 ;;
+    n|N) (( (page + 1) * page_size < ${#names[@]} )) && ((page+=1)) ;;
+    p|P) (( page > 0 )) && ((page-=1)) ;;
+    c|C) selected_indices=() ;;
+    a|A)
+      local_start=$((page * page_size))
+      local_end=$((local_start + page_size))
+      (( local_end > ${#names[@]} )) && local_end=${#names[@]}
+      for ((i=local_start; i<local_end; i++)); do is_selected "$i" || selected_indices+=("$i"); done
+      ;;
+    i|I|r|R)
+      if [[ ${#selected_indices[@]} -eq 0 ]]; then
+        printf '%bNothing selected.%b\n' "$R" "$N"; sleep 1; continue
+      fi
+      action=install; [[ "$choice" =~ ^[rR]$ ]] && action=remove
+      for idx in " ${selected_indices[@]} "; do run_blueprint " ${names[$idx]}" "$action" || true; done
+      selected_indices=()
+      read -r -p "Press Enter to return..." _
+      ;;
+    *)
+      for val in $choice; do
+        if [[ "$val" =~ ^[0-9]+$ ]] && (( val >= 1 && val <= ${#names[@]} )); then
+          toggle_selected "$((val - 1))"
+        else
+          printf '%bInvalid selection: %s%b\n' "$R" "$val" "$N"
+        fi
+      done
+      ;;
+  esac
 done
