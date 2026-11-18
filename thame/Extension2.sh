@@ -73,18 +73,17 @@ run_blueprint() {
     if [[ "$ACTION" == "install" ]]; then
         if [[ ! -f "$panel/$NAME" ]]; then
             echo -e "${Y}[!] Package missing: $panel/$NAME${N}"
-            echo -e "${D}Paste the official HTTPS download URL for this .blueprint package.${N}"
-            read -r -p "Package URL (blank to cancel): " package_url
-            [[ -n "$package_url" ]] || { echo "Cancelled."; return 2; }
-            [[ "$package_url" == https://* ]] || { echo -e "${R}Only HTTPS URLs are accepted.${N}"; return 2; }
-            command -v curl >/dev/null 2>&1 || { echo -e "${R}curl is required.${N}"; return 2; }
-            if curl -fL --retry 2 --connect-timeout 15 "$package_url" -o "$panel/$NAME.tmp" && unzip -tq "$panel/$NAME.tmp" >/dev/null 2>&1; then
-                mv "$panel/$NAME.tmp" "$panel/$NAME"
-                echo -e "${G}[+] Downloaded package and verified ZIP integrity.${N}"
+            echo -e "${D}Checking common upload folders (/root, /home, /tmp)...${N}"
+            found="$(find /root /home /tmp -type f -name "$NAME" -print -quit 2>/dev/null || true)"
+            if [[ -n "$found" ]] && unzip -tq "$found" >/dev/null 2>&1; then
+                cp -- "$found" "$panel/$NAME"
+                echo -e "${G}[+] Found and verified package: $found${N}"
             else
-                rm -f "$panel/$NAME.tmp"
-                echo -e "${R}[!] Download failed or package is not a valid Blueprint ZIP.${N}"
-                return 2
+                echo -e "${Y}Upload the official $NAME file using SFTP to /root/$NAME, then retry.${N}"
+                read -r -p "Package file path (blank to cancel): " source_file
+                [[ -n "$source_file" && -f "$source_file" ]] || { echo "Cancelled."; return 2; }
+                unzip -tq "$source_file" >/dev/null 2>&1 || { echo -e "${R}[!] Invalid Blueprint ZIP package.${N}"; return 2; }
+                cp -- "$source_file" "$panel/$NAME"
             fi
         fi
         (cd "$panel" && blueprint -install "$slug")
