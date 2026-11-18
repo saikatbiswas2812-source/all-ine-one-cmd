@@ -62,7 +62,6 @@ while true; do
     echo -e "   ${MAGENTA}${BOLD}02  CUSTOMIZATION${RESET}"
     echo -e "   ${YELLOW}[2]${RESET}  Premium Themes"
     echo -e "   ${YELLOW}[3]${RESET}  Extensions & Add-ons"
-    echo -e "   ${YELLOW}[4]${RESET}  Hyper V1  ${MUTED}✦${RESET}"
     echo ""
     echo -e "   ${MUTED}──────────────────────────────────────────────────────────────────────${RESET}"
     echo -e "   ${RED}[0]${RESET}  Back to L4xxyHost"
@@ -205,22 +204,6 @@ while true; do
             pause
             ;;
 
-        4)
-            clear
-            draw_box
-            echo ""
-            echo -e "${MAGENTA}Launching Hyper V1...${RESET}"
-            wget -O installer.sh https://r2.rolexdev.tech/hyperv1/installer.sh
-            chmod +x installer.sh
-            sudo ./installer.sh
-            rm installer.sh
-            cd /var/www/pterodactyl
-            php artisan view:clear
-            php artisan config:clear
-            chown -R www-data:www-data /var/www/pterodactyl/*
-            php artisan queue:restart
-            pause
-            ;;
 
         0)
             clear
