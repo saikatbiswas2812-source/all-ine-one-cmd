@@ -51,7 +51,7 @@ is_installed() {
 
 is_selected() {
   local target=$1 item
-  for item in " ${selected_indices[*]} "; do
+  for item in "${selected_indices[@]}"; do
     [[ "$item" -eq "$target" ]] && return 0
   done
   return 1
@@ -61,10 +61,10 @@ toggle_selected() {
   local target=$1 item
   if is_selected "$target"; then
     local next=()
-    for item in " ${selected_indices[@]} "; do
+    for item in "${selected_indices[@]}"; do
       [[ "$item" -eq "$target" ]] || next+=("$item")
     done
-    selected_indices=(" ${next[@]} ")
+    selected_indices=("${next[@]}")
   else
     selected_indices+=("$target")
   fi
@@ -88,7 +88,7 @@ draw_header() {
 }
 
 show_item() {
-  local index=$1 number=$((index + 1)) name=" ${names[$index]%.blueprint}" mark status
+  local index=$1 number=$((index + 1)) name="${names[$index]%.blueprint}" mark status
   if is_selected "$index"; then mark=" ${BY}◆${N}"; else mark=" ${D}◇${N}"; fi
   if is_installed "$name"; then status=" ${BG}●${N}"; else status=" ${R}○${N}"; fi
   printf '  %b %b%02d%b %-*.*s %b\n' "$mark" "$BC" "$number" "$N" "$name_width" "$name_width" "$name" "$status"
@@ -98,7 +98,7 @@ show_menu() {
   local width inner total installed=0 start end i pages left_count li ri
   width=$(term_cols); inner=$((width - 4)); total=${#names[@]}
   for ((i=0; i<total; i++)); do
-    is_installed " ${names[$i]}" && ((installed+=1))
+    is_installed "${names[$i]}" && ((installed+=1))
   done
   pages=$(((total + page_size - 1) / page_size))
   (( page >= pages )) && page=$((pages - 1))
@@ -148,7 +148,7 @@ while true; do
         printf '%bNothing selected.%b\n' "$R" "$N"; sleep 1; continue
       fi
       action=install; [[ "$choice" =~ ^[rR]$ ]] && action=remove
-      for idx in " ${selected_indices[@]} "; do run_blueprint " ${names[$idx]}" "$action" || true; done
+      for idx in "${selected_indices[@]}"; do run_blueprint "${names[$idx]}" "$action" || true; done
       selected_indices=()
       read -r -p "Press Enter to return..." _
       ;;
