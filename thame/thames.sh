@@ -84,32 +84,15 @@ while true; do
 
   case "$action" in
     1)
-      if [[ ! -d "$PANEL_DIR" ]]; then
-        printf '\n  %sPterodactyl panel not found at %s. Install the panel first.%s\n' "$R" "$PANEL_DIR" "$N"
-      elif ! command -v blueprint >/dev/null 2>&1; then
-        printf '\n  %sBlueprint CLI is not installed. Install Blueprint before applying themes.%s\n' "$R" "$N"
-      else
-        tmpfile="$(mktemp --suffix=.blueprint)"
-        trap 'rm -f "${tmpfile:-}"' EXIT
-        printf '\n  %sDownloading %s...%s\n' "$C" "$clean_name" "$N"
-        if wget -q --https-only "$URL/$NAME" -O "$tmpfile" && [[ -s "$tmpfile" ]]; then
-          (cd "$PANEL_DIR" && yes | blueprint -i "$tmpfile")
-        else
-          printf '  %sDownload failed. No theme was installed.%s\n' "$R" "$N"
-        fi
-        rm -f "$tmpfile"
-        trap - EXIT
-      fi
+      printf '\n  %sTheme installation is temporarily disabled.%s\n' "$Y" "$N"
+      printf '  %sThird-party Blueprint packages need source, checksum, and compatibility review first.%s\n' "$D" "$N"
+      printf '  %sNo files or panel data were changed.%s\n' "$G" "$N"
       ;;
     2)
-      if [[ ! -d "$PANEL_DIR" ]] || ! command -v blueprint >/dev/null 2>&1; then
-        printf '\n  %sPanel or Blueprint CLI not found; nothing was removed.%s\n' "$R" "$N"
-      else
-        printf '\n  %sRemoving %s...%s\n' "$Y" "$clean_name" "$N"
-        (cd "$PANEL_DIR" && yes | blueprint -r "$clean_name")
-      fi
+      printf '\n  %sTheme removal is temporarily disabled to protect panel data.%s\n' "$Y" "$N"
+      printf '  %sNo files or panel data were changed.%s\n' "$G" "$N"
       ;;
-    0) continue ;;
+    0) exit 0 ;;
     *) printf '\n  %sInvalid action.%s\n' "$R" "$N" ;;
   esac
   pause
