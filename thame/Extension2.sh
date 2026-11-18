@@ -79,25 +79,23 @@ show_menu() {
         is_installed "$clean_name" && ((installed+=1))
     done
 
-    echo -e "\n  ${M}╭──────────────────────────────────────────────────────────────────────────────╮${N}"
-    echo -e "  ${M}│                                                                              │${N}"
-
-
-
-
-
-
-    printf "  ${M}│${N}   ${BM}L4XXYHOST${N}                                                                  ${M}│${N}\n"
-    printf "  ${M}│${N}   ${BY}%-74s${M}│${N}\n" "MADE BY L4XXY  •  PREMIUM EXTENSION MARKETPLACE"
-    echo -e "  ${M}╰──────────────────────────────────────────────────────────────────────────────╯${N}"
-    echo -e "   ${D}HOST${N} ${W}$(hostname)${N}   ${D}USER${N} ${W}$(whoami)${N}   ${D}TIME${N} ${W}$(date +'%H:%M')${N}"
-    echo -e "\n  ${C}╭───────────────────────╮  ╭───────────────────────╮  ╭───────────────────────╮${N}"
-    printf "  ${C}│${N}  ${BC}TOTAL ADD-ONS${N}         ${C}│  │${N}  ${BG}INSTALLED${N}            ${C}│  │${N}  ${BY}SELECTED${N}             ${C}│\n"
-    printf "  ${C}│${N}      ${BW}%-3s${N}                ${C}│  │      ${BG}%-3s${N}               ${C}│  │      ${BM}%-3s${N}                ${C}│\n" "$total" "$installed" "${#selected_indices[@]}"
-    echo -e "  ${C}╰───────────────────────╯  ╰───────────────────────╯  ╰───────────────────────╯${N}"
-    echo -e "\n  ${M}╭──────────────────────────────────────────────────────────────────────────────╮${N}"
-    echo -e "  ${M}│${N}  ${BM}✦  BROWSE EXTENSIONS${N}    ${D}Choose item numbers to select or deselect add-ons${N}  ${M}│${N}"
-    echo -e "  ${M}╰──────────────────────────────────────────────────────────────────────────────╯\n"
+    echo -e "\n  ${M}╭────────────────────────────────────────────────────────╮${N}"
+    echo -e "  ${M}│${N}                                                        ${M}│${N}"
+    echo -e "  ${M}│${N}       ${BM}██╗  ██╗  ██╗  ██╗  ██╗   ██╗${N}              ${M}│${N}"
+    echo -e "  ${M}│${N}       ${BM}╚██╗██╔╝  ╚██╗██╔╝  ╚██╗ ██╔╝${N}              ${M}│${N}"
+    echo -e "  ${M}│${N}        ${BM}╚███╔╝    ╚███╔╝    ╚████╔╝${N}               ${M}│${N}"
+    echo -e "  ${M}│${N}        ${BM}██╔██╗    ██╔██╗     ╚██╔╝${N}                ${M}│${N}"
+    echo -e "  ${M}│${N}       ${BM}██╔╝ ██╗  ██╔╝ ██╗     ██║${N}                 ${M}│${N}"
+    echo -e "  ${M}│${N}       ${BM}╚═╝  ╚═╝  ╚═╝  ╚═╝     ╚═╝${N}                 ${M}│${N}"
+    printf "  ${M}│${N}       ${BY}%-42s${M}│${N}\n" "MADE BY L4XXY • EXTENSION MARKETPLACE"
+    echo -e "  ${M}╰────────────────────────────────────────────────────────╯${N}"
+    echo -e "   ${D}HOST${N} ${W}$(hostname)${N}  ${D}USER${N} ${W}$(whoami)${N}  ${D}TIME${N} ${W}$(date +'%H:%M')${N}"
+    echo -e "\n  ${C}╭──────────────╮  ╭──────────────╮  ╭──────────────╮${N}"
+    printf "  ${C}│${N} ${BC}TOTAL${N} ${BW}%-3s${N} ${C}│${N}  ${C}│${N} ${BG}INSTALLED${N} ${BG}%-2s${N} ${C}│${N}  ${C}│${N} ${BY}SELECTED${N} ${BM}%-2s${N} ${C}│${N}\n" "$total" "$installed" "${#selected_indices[@]}"
+    echo -e "  ${C}╰──────────────╯  ╰──────────────╯  ╰──────────────╯${N}"
+    echo -e "\n  ${M}╭────────────────────────────────────────────────────────╮${N}"
+    echo -e "  ${M}│${N}  ${BM}✦ BROWSE EXTENSIONS${N}                                  ${M}│${N}"
+    echo -e "  ${M}╰────────────────────────────────────────────────────────╯\n"
 
     for ((i=0; i<total; i+=2)); do
         left="${names[$i]%.blueprint}"
@@ -113,11 +111,12 @@ show_menu() {
         printf "\n"
     done
 
-    echo -e "\n  ${D}  ────────────────────────────────────────────────────────────────────────────${N}"
-    echo -e "   ${BG}●${N} Installed   ${R}○${N} Available   ${BY}◆${N} Selected   ${Y}Install/Remove locked pending audit${N}"
-    echo -e "\n  ${C}╭──────────────────────────────────────────────────────────────────────────────╮${N}"
-    echo -e "  ${C}│${N}  ${BG}[i]${N} INSTALL   ${BR}[r]${N} REMOVE   ${BM}[a]${N} SELECT ALL   ${BC}[c]${N} CLEAR   ${R}[0]${N} BACK"
-    echo -e "  ${C}╰──────────────────────────────────────────────────────────────────────────────╯${N}"
+    echo -e "\n  ${D}  ────────────────────────────────────────────────────${N}"
+    echo -e "   ${BG}●${N} Installed  ${R}○${N} Available  ${BY}◆${N} Selected"
+    echo -e "   ${Y}Install/Remove locked pending audit${N}"
+    echo -e "\n  ${C}╭────────────────────────────────────────────────────────╮${N}"
+    echo -e "  ${C}│${N} ${BG}[i]${N} INSTALL  ${BR}[r]${N} REMOVE  ${BM}[a]${N} ALL  ${BC}[c]${N} CLEAR  ${R}[0]${N} BACK ${C}│${N}"
+    echo -e "  ${C}╰────────────────────────────────────────────────────────╯${N}"
 }
 
 # 🔁 MAIN LOOP
