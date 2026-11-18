@@ -2,7 +2,7 @@
 
 A community-maintained toolkit for deploying and managing game-server infrastructure.
 
-> **Status:** The L4xxyHost dashboard and theme-studio navigation are under automated shell checks. Theme/extension package execution is intentionally disabled until third-party package provenance, checksums, and compatibility are reviewed. Other legacy installers are not certified production-ready.
+> **Status:** The dashboard, theme and extension menus are available. Bundled Blueprint package files are looked up from `thame/UI/` and `thame/Extension/` and copied into the Panel directory after ZIP integrity checks. Package authenticity, upstream provenance, and compatibility still require independent review; successful menu navigation does not guarantee that every add-on works with every Panel/Blueprint version.
 
 ## Features
 
@@ -33,7 +33,7 @@ sudo bash menu/run.sh
 - Read the selected installer before execution. Installers can change packages, services, firewall rules and databases.
 - Back up existing panel data and configuration before upgrades or removal.
 - The dashboard launcher runs local files only; it does not download and execute a remote menu payload.
-- Theme and extension install/remove actions are temporarily disabled because the bundled third-party Blueprint packages have not completed source, checksum, and compatibility review.
+- Theme and extension installers use bundled `.blueprint` archives. They verify ZIP structure before handing the package to Blueprint, but ZIP integrity is not a malware scan or proof of publisher authenticity. Review third-party packages and back up the Panel before installation.
 - Legacy panel, Wings, toolbox, VM, and Extras scripts are still separate modules and must be audited and tested on supported systems before production use.
 - Do not use destructive uninstall options on an existing server without a verified backup.
 - Destructive removal actions are intentionally not offered by the dashboard.
