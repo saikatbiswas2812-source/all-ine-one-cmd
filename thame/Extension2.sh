@@ -116,10 +116,9 @@ show_menu() {
     local left right left_status right_status left_mark right_mark
     cols=$(tput cols 2>/dev/null || printf '80')
     [[ "$cols" =~ ^[0-9]+$ ]] || cols=80
-    (( cols < 52 )) && cols=52
+    (( cols < 60 )) && cols=60
     width=$(( cols - 4 ))
-    (( width > 76 )) && width=76
-    (( width < 48 )) && width=48
+    (( width > 104 )) && width=104
     inner=$(( width - 2 ))
     colw=$(( inner / 2 ))
 
@@ -128,48 +127,39 @@ show_menu() {
         is_installed "$clean_name" && ((installed+=1))
     done
 
-    # Masthead
-    printf '\n  %s╭%*s╮%s\n' "$M" "$inner" '' "$N" | sed "s/ /─/g"
-    printf '  %s│%s  %sL4XXY%s  %s/  EXTENSION VAULT%s%*s%s│%s\n' "$M" "$N" "$BR" "$N" "$D" "$N" "$((inner-35))" '' "$M" "$N"
-    printf '  %s│%s  %sBLACK LABEL%s  %s•  BLUEPRINT ADD-ONS%s%*s%s│%s\n' "$M" "$N" "$BY" "$N" "$D" "$N" "$((inner-41))" '' "$M" "$N"
-    printf '  %s╰%*s╯%s\n' "$M" "$inner" '' "$N" | sed "s/ /─/g"
+    printf '\n  %s╭%*s╮%s\n' "$M" "$inner" '' "$N" | sed "s/ /━/g"
+    printf '  %s┃%s  %sL4XXYHOST%s  %s/ /%s  %sTHE EXTENSION VAULT%s%*s%s┃%s\n' "$M" "$N" "$BW" "$N" "$D" "$N" "$BM" "$N" "$((inner-39))" '' "$M" "$N"
+    printf '  %s┃%s  %sBLACK LABEL%s  %s◆%s  %sBLUEPRINT ECOSYSTEM%s%*s%s┃%s\n' "$M" "$N" "$BY" "$N" "$M" "$N" "$D" "$N" "$((inner-43))" '' "$M" "$N"
+    printf '  %s╰%*s╯%s\n' "$M" "$inner" '' "$N" | sed "s/ /━/g"
 
-    # Compact live status strip
-    printf '\n  %sHOST%s %-16.16s  %sOPERATOR%s %-8.8s  %sLOCAL%s %s\n' "$D" "$N" "$(hostname)" "$D" "$N" "$(whoami)" "$D" "$N" "$(date +'%H:%M')"
-    printf '\n  %s╭───────────────────┬───────────────────┬───────────────────╮%s\n' "$D" "$N"
-    printf '  %s│%s  %sLIBRARY%s  %02d       %s│%s  %sINSTALLED%s  %02d     %s│%s  %sQUEUED%s  %02d      %s│%s\n' "$D" "$N" "$BC" "$N" "$total" "$D" "$N" "$BG" "$N" "$installed" "$D" "$N" "$BY" "$N" "${#selected_indices[@]}" "$D" "$N"
-    printf '  %s╰───────────────────┴───────────────────┴───────────────────╯%s\n' "$D" "$N"
+    printf '\n  %sSYSTEM%s  %s%s%s   %sOPERATOR%s  %s%s%s   %sTIME%s  %s%s%s\n' "$D" "$N" "$BW" "$(hostname)" "$N" "$D" "$N" "$BC" "$(whoami)" "$N" "$D" "$N" "$BW" "$(date +'%H:%M')" "$N"
+    printf '\n  %s╭%*s╮%s\n' "$D" "$inner" '' "$N" | sed "s/ /─/g"
+    printf '  %s│%s  %sLIBRARY%s  %s%02d%s%*s%s│%s  %sINSTALLED%s  %s%02d%s%*s%s│%s  %sSELECTED%s  %s%02d%s%*s%s│%s\n' \
+      "$D" "$N" "$BC" "$N" "$BW" "$total" "$N" 5 '' "$D" "$N" "$D" "$N" "$BG" "$N" "$BW" "$installed" "$N" 4 '' "$D" "$N" "$D" "$N" "$BY" "$N" "$BW" "${#selected_indices[@]}" "$N" 4 '' "$D" "$N"
+    printf '  %s╰%*s╯%s\n' "$D" "$inner" '' "$N" | sed "s/ /─/g"
 
-    printf '\n  %s01%s  %s/  AVAILABLE EXTENSIONS%s\n' "$BR" "$N" "$BW" "$N"
-    printf '  %s     Select package IDs, then choose an action below.%s\n\n' "$D" "$N"
+    printf '\n  %s01%s  %sAVAILABLE EXTENSIONS%s  %s/  SELECT PACKAGES BY ID%s\n' "$BR" "$N" "$BW" "$N" "$D" "$N"
+    printf '  %sChoose one or more packages. Installed items are marked in green.%s\n\n' "$D" "$N"
 
-    if (( cols >= 76 )); then
-        for ((i=0; i<total; i+=2)); do
-            left="${names[$i]%.blueprint}"
-            is_installed "$left" && left_status="${BG}●${N}" || left_status="${D}○${N}"
-            is_selected "$i" && left_mark="${BY}◆${N}" || left_mark="${D}·${N}"
-            printf '  %b %s%02d%s %-*.*s %b' "$left_mark" "$BC" "$((i+1))" "$N" "$((colw-9))" "$((colw-9))" "$left" "$left_status"
-            if (( i+1 < total )); then
-                right="${names[$((i+1))]%.blueprint}"
-                is_installed "$right" && right_status="${BG}●${N}" || right_status="${D}○${N}"
-                is_selected "$((i+1))" && right_mark="${BY}◆${N}" || right_mark="${D}·${N}"
-                printf '   %b %s%02d%s %-*.*s %b' "$right_mark" "$BC" "$((i+2))" "$N" "$((colw-9))" "$((colw-9))" "$right" "$right_status"
-            fi
-            printf '\n'
-        done
-    else
-        for ((i=0; i<total; i++)); do
-            left="${names[$i]%.blueprint}"
-            is_installed "$left" && left_status="${BG}●${N}" || left_status="${D}○${N}"
-            is_selected "$i" && left_mark="${BY}◆${N}" || left_mark="${D}·${N}"
-            printf '  %b %s%02d%s %-*.*s %b\n' "$left_mark" "$BC" "$((i+1))" "$N" "$((width-12))" "$((width-12))" "$left" "$left_status"
-        done
-    fi
+    for ((i=0; i<total; i+=2)); do
+        left="${names[$i]%.blueprint}"
+        is_installed "$left" && left_status="${BG}● INSTALLED${N}" || left_status="${D}○ AVAILABLE${N}"
+        is_selected "$i" && left_mark="${BY}◆${N}" || left_mark="${D}›${N}"
+        printf '  %b %s%02d%s  %-*.*s  %b' "$left_mark" "$BC" "$((i+1))" "$N" "$((colw-22))" "$((colw-22))" "$left" "$left_status"
+        if (( i+1 < total )); then
+            right="${names[$((i+1))]%.blueprint}"
+            is_installed "$right" && right_status="${BG}● INSTALLED${N}" || right_status="${D}○ AVAILABLE${N}"
+            is_selected "$((i+1))" && right_mark="${BY}◆${N}" || right_mark="${D}›${N}"
+            printf '   %b %s%02d%s  %-*.*s  %b' "$right_mark" "$BC" "$((i+2))" "$N" "$((colw-22))" "$((colw-22))" "$right" "$right_status"
+        fi
+        printf '\n'
+    done
 
-    printf '\n  %s────────────────────────────────────────────────────────────────────────%s\n' "$M" "$N"
-    printf '  %b Installed%s   %b Available%s   %b Selected%s\n' "$BG●" "$N" "$D○" "$N" "$BY◆" "$N"
-    printf '\n  %s[ I ]%s INSTALL    %s[ R ]%s REMOVE    %s[ A ]%s SELECT ALL    %s[ C ]%s CLEAR    %s[ 0 ]%s BACK\n' "$BR" "$N" "$BR" "$N" "$BC" "$N" "$BC" "$N" "$D" "$N"
-    printf '  %sL4XXYHOST%s %s›%s ' "$BC" "$N" "$BR" "$N"
+    printf '\n  %s╭%*s╮%s\n' "$M" "$inner" '' "$N" | sed "s/ /━/g"
+    printf '  %s┃%s  %b Installed%s   %b Available%s   %b Selected%s%*s%s┃%s\n' "$M" "$N" "$BG●" "$N" "$D○" "$N" "$BY◆" "$N" "$((inner-42))" '' "$M" "$N"
+    printf '  %s╰%*s╯%s\n' "$M" "$inner" '' "$N" | sed "s/ /━/g"
+    printf '\n  %s[I]%s INSTALL   %s[R]%s REMOVE   %s[A]%s SELECT ALL   %s[C]%s CLEAR   %s[0]%s BACK\n' "$BR" "$N" "$BR" "$N" "$BC" "$N" "$BC" "$N" "$D" "$N"
+    printf '  %sL4XXYHOST%s %s›%s ' "$BC" "$N" "$BM" "$N"
 }
 # 🔁 MAIN LOOP
 # ==========================================
