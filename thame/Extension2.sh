@@ -73,8 +73,19 @@ run_blueprint() {
     if [[ "$ACTION" == "install" ]]; then
         if [[ ! -f "$panel/$NAME" ]]; then
             echo -e "${Y}[!] Package missing: $panel/$NAME${N}"
-            echo -e "${D}Upload a verified .blueprint package into the Panel directory first.${N}"
-            return 2
+            echo -e "${D}Paste the official HTTPS download URL for this .blueprint package.${N}"
+            read -r -p "Package URL (blank to cancel): " package_url
+            [[ -n "$package_url" ]] || { echo "Cancelled."; return 2; }
+            [[ "$package_url" == https://* ]] || { echo -e "${R}Only HTTPS URLs are accepted.${N}"; return 2; }
+            command -v curl >/dev/null 2>&1 || { echo -e "${R}curl is required.${N}"; return 2; }
+            if curl -fL --retry 2 --connect-timeout 15 "$package_url" -o "$panel/$NAME.tmp" && unzip -tq "$panel/$NAME.tmp" >/dev/null 2>&1; then
+                mv "$panel/$NAME.tmp" "$panel/$NAME"
+                echo -e "${G}[+] Downloaded package and verified ZIP integrity.${N}"
+            else
+                rm -f "$panel/$NAME.tmp"
+                echo -e "${R}[!] Download failed or package is not a valid Blueprint ZIP.${N}"
+                return 2
+            fi
         fi
         (cd "$panel" && blueprint -install "$slug")
     else
