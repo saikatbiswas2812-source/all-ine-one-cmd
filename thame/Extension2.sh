@@ -81,7 +81,7 @@ show_menu() {
 
     echo -e "\n  ${M}╭────────────────────────────────────────────────────────╮${N}"
     echo -e "  ${M}│${N}                                                        ${M}│${N}"
-    printf "  ${M}│${N}       ${BM}%s${N}                                        ${M}│${N}\n" "L4XXY"
+    printf "  ${M}│${N}       ${BM}%-42s${N} ${M}│${N}\n" "L4XXY"
     printf "  ${M}│${N}       ${BY}%-42s${M}│${N}\n" "MADE BY L4XXY • EXTENSION MARKETPLACE"
     echo -e "  ${M}╰────────────────────────────────────────────────────────╯${N}"
     echo -e "   ${D}HOST${N} ${W}$(hostname)${N}  ${D}USER${N} ${W}$(whoami)${N}  ${D}TIME${N} ${W}$(date +'%H:%M')${N}"
