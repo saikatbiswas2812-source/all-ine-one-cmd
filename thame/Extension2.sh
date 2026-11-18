@@ -104,7 +104,7 @@ run_blueprint() {
         fi
         read -r -p "Type REMOVE to uninstall $slug: " confirm
         [[ "$confirm" == "REMOVE" ]] || { echo "Cancelled."; return 2; }
-        blueprint -remove "$slug"
+        # Blueprint asks for a second confirmation by default. The explicit REMOVE\n        # confirmation above is our safety gate, so tell Blueprint it was confirmed.\n        USER_CONFIRMED_REMOVAL=yes blueprint -remove "$slug"
     fi
 }
 
