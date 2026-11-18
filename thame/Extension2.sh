@@ -87,7 +87,7 @@ show_menu() {
     # Dark thriller / cyber-security visual identity.
     printf "\n  ${BR}╔"; printf '%*s' "$((inner - 2))" '' | tr ' ' '═'; printf "╗${N}\n"
     printf "  ${BR}║${N}  ${BM}L4XXY${N}  ${BW}BLACKSITE${N}  ${D}//${N}  ${W}EXTENSION VAULT${N}%*s${BR}║${N}\n" "$((inner - 39))" ''
-    printf "  ${BR}║${N}  ${BY}MADE BY L4XXY${N}  ${D}•${N}  ${R}PREMIUM ADD-ON MARKETPLACE${N}%*s${BR}║${N}\n" "$((inner - 44))" ''
+    printf "  ${BR}║${N}  ${BY}MADE BY L4XXY${N}  ${D}•${N}  ${R}PREMIUM ADD-ON MARKETPLACE${N}%*s${BR}║${N}\n" "$((inner - 46))" ''
     printf "  ${BR}╚"; printf '%*s' "$((inner - 2))" '' | tr ' ' '═'; printf "╝${N}\n"
 
     printf "  ${D}NODE${N} ${W}%-13.13s${N}  ${D}USER${N} ${W}%-8.8s${N}  ${D}LOCAL TIME${N} ${W}%s${N}\n" "$(hostname)" "$(whoami)" "$(date +'%H:%M')"
