@@ -1,98 +1,31 @@
-#!/bin/bash
-
-# --- CONFIG & SEMA UI COLORS ---
-CYAN='\033[38;5;51m'
-PURPLE='\033[38;5;141m'
-GRAY='\033[38;5;242m'
-WHITE='\033[38;5;255m'
-GREEN='\033[38;5;82m'
-RED='\033[38;5;196m'
-GOLD='\033[38;5;220m'
-NC='\033[0m'
-
-# --- HELPER FUNCTIONS ---
-pause() {
-    echo -e ""
-    echo -ne "  ${GRAY}Press any key to return to grid...${NC}"
-    read -n 1 -s -r
-}
-
-get_metrics() {
-    UPT=$(uptime -p | sed 's/up //')
-    LOAD=$(uptime | awk -F'load average:' '{ print $2 }' | cut -d, -f1 | xargs)
-}
-
-show_header() {
-    get_metrics
-    clear
-    echo -e "${PURPLE}┌──────────────────────────────────────────────────────────┐${NC}"
-    echo -e "${PURPLE}│${NC}  ${CYAN}🛰️  SERVER PANEL MANAGER${NC} ${GRAY}v15.0${NC}         ${GRAY}$(date +"%H:%M")${NC}  ${PURPLE}│${NC}"
-    echo -e "${PURPLE}└──────────────────────────────────────────────────────────┘${NC}"
-    echo -e "  ${CYAN}SYSTEM STATUS${NC}"
-    echo -e "  ${GRAY}├─ Uptime :${NC} ${WHITE}$UPT${NC}"
-    echo -e "  ${GRAY}└─ Load   :${NC} ${WHITE}$LOAD${NC}"
-    echo -e "${GRAY}────────────────────────────────────────────────────────────${NC}"
-}
-
-# --- OMNI-GRID MENU ---
-panel_menu() {
-    while true; do
-        show_header
-        
-        echo -e "  ${GOLD}  AVAILABLE DEPLOYMENTS${NC}"
-        echo -e "  ${GRAY}┌──────────────────────────┬──────────────────────────┐${NC}"
-        echo -e "  ${GRAY}│${NC} ${PURPLE}[1]${NC} Pterodactyl v1x      ${GRAY}│${NC} ${PURPLE}[7]${NC}  Pterodactyl v2x      ${GRAY}│${NC}"
-        echo -e "  ${GRAY}│${NC} ${PURPLE}[2]${NC} NovaStudio           ${GRAY}│${NC} ${PURPLE}[8]${NC}  soon                 ${GRAY}│${NC}"
-        echo -e "  ${GRAY}│${NC} ${PURPLE}[3]${NC} Ptro old             ${GRAY}│${NC} ${PURPLE}[9]${NC}  soon                 ${GRAY}│${NC}"
-        echo -e "  ${GRAY}│${NC} ${PURPLE}[4]${NC} soon                 ${GRAY}│${NC} ${PURPLE}[10]${NC} soon                 ${GRAY}│${NC}"
-        echo -e "  ${GRAY}│${NC} ${PURPLE}[5]${NC} soon                 ${GRAY}│${NC} ${PURPLE}[11]${NC} soon                 ${GRAY}│${NC}"
-        echo -e "  ${GRAY}│${NC} ${PURPLE}[6]${NC} Paymenter            ${GRAY}│${NC} ${RED}[0]${NC} Exit                 ${GRAY}│${NC}"
-        echo -e "  ${GRAY}└──────────────────────────┴──────────────────────────┘${NC}"
-        echo ""
-        echo -ne "  ${CYAN}λ${NC} ${WHITE}Select Module [1-11]:${NC} "
-        read p
-
-        case $p in
-            1)  echo -e "  ${CYAN}➜ Executing Pterodactyl Routine...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/nobita329/NobitaHost/refs/heads/main/panel/pterodactyl/run.sh) 
-                pause ;;
-            2)  echo -e "  ${CYAN}➜ Executing [] Routine...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/nobita329/NobitaHost/refs/heads/main/panel/NovaStudio/run.sh) 
-                pause ;;
-            3)  echo -e "  ${CYAN}➜ Executing [] Routine...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/nobita329/Nobita-Cloud/refs/heads/main/panel/pterodactyl/run.sh)
-                pause ;;
-            4)  echo -e "  ${CYAN}➜ Executing [] Routine...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/nobita329/Nobita-Cloud/refs/heads/main/panel/reviactyl/run.sh)
-                pause ;;
-            5)  echo -e "  ${CYAN}➜ Executing [] Routine...${NC}"
-                bash <(curl -s ) 
-                pause ;;
-            6)  echo -e "  ${CYAN}➜ Executing paymenter Routine...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/nobita329/Nobita-Cloud/refs/heads/main/panel/paymenter/run.sh) 
-                pause ;;
-            7)  echo -e "  ${CYAN}➜ Executing Convoy Routine...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/nobita329/Codes/refs/heads/main/panel/pterodactyl/runv2.sh) 
-                pause ;;
-            8)  echo -e "  ${CYAN}➜ Executing [] Routine...${NC}"
-                bash <(curl -s ) 
-                pause ;;
-            9)  echo -e "  ${CYAN}➜ Executing [] Routine...${NC}"
-                bash <(curl -s https://raw.githubusercontent.com/nobita329/Nobita-Cloud/refs/heads/main/panel/mythical/run.sh) 
-                pause ;;
-            10) echo -e "  ${CYAN}➜ Executing Tools Routine...${NC}"
-                bash <(curl -s ) 
-                pause ;;
-            11) echo -e "  ${CYAN}➜ Executing Tools Routine...${NC}"
-                bash <(curl -s ) 
-                pause ;;
-            0)  echo -e "\n  ${RED}Shutting down Uplink. Goodbye!${NC}"
-                exit 0 ;;
-            *)  echo -e "  ${RED}⚠ Invalid Selection${NC}"
-                sleep 1 ;;
-        esac
-    done
-}
-
-# Run the menu
-panel_menu
+#!/usr/bin/env bash
+set -Eeuo pipefail
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+C=$'\033[1;36m'; P=$'\033[1;35m'; R=$'\033[1;31m'; G=$'\033[1;32m'; N=$'\033[0m'
+run(){ local f="$ROOT/$1"; if [[ -f "$f" ]]; then bash "$f"; else echo "${R}Not available in this checkout: $1${N}"; fi; read -r -p "Press Enter to continue..." _; }
+while true; do
+ clear
+ echo "${P}╔══════════════════════════════════════════════╗${N}"
+ echo "${P}║${N} ${C}L4XXYHOST — PANEL DEPLOYMENTS${N}               ${P}║${N}"
+ echo "${P}╚══════════════════════════════════════════════╝${N}"
+ echo "  1) Pterodactyl"
+ echo "  2) Reviactyl"
+ echo "  3) Paymenter"
+ echo "  4) Mythical (check installer requirements)"
+ echo "  5) Convoy (check installer requirements)"
+ echo "  6) Pteroca"
+ echo "  7) Jexactyl"
+ echo "  0) Back"
+ read -r -p "Select > " opt
+ case "$opt" in
+  1) run "panel/pterodactyl/run.sh" ;;
+  2) run "panel/reviactyl/run.sh" ;;
+  3) run "panel/paymenter/run.sh" ;;
+  4) run "panel/mythical/run.sh" ;;
+  5) run "panel/Convoy/install.sh" ;;
+  6) run "panel/pteroca/install.sh" ;;
+  7) run "panel/Jexactyl/install.sh" ;;
+  0) exit 0 ;;
+  *) echo "${R}Invalid selection.${N}"; sleep 1 ;;
+ esac
+done
