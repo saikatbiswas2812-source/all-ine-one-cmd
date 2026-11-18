@@ -102,9 +102,7 @@ run_blueprint() {
             echo -e "${Y}[!] $slug is not installed.${N}"
             return 2
         fi
-        read -r -p "Type REMOVE to uninstall $slug: " confirm
-        [[ "$confirm" == "REMOVE" ]] || { echo "Cancelled."; return 2; }
-        # The typed REMOVE confirmation is the safety gate; skip Blueprint's duplicate prompt.
+        # Direct removal: skip both the marketplace and Blueprint confirmation prompts.
         USER_CONFIRMED_REMOVAL=yes blueprint -remove "$slug"
     fi
 }
