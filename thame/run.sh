@@ -48,7 +48,7 @@ install_blueprint() {
     if [[ ! -f "$panel/.blueprintrc" ]]; then
         printf '%s\n' 'WEBUSER="www-data";' 'OWNERSHIP="www-data:www-data";' 'USERSHELL="/bin/bash";' > "$panel/.blueprintrc"
     fi
-    chown -R www-data:www-data "$panel"
+    chown www-data:www-data "$panel/.blueprintrc"
     chmod +x "$panel/blueprint.sh"
     status_msg INFO "Installing Blueprint dependencies..."
     (cd "$panel" && yarn install) || return 1
